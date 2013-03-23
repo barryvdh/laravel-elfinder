@@ -1,6 +1,6 @@
 {
     "name": "barryvdh/elfinder-bundle",
-    "description": "",
+    "description": "A Laravel Bundle to integrate elFinder 2.0",
     "authors": [
         {
             "name": "Barry vd. Heuvel",
