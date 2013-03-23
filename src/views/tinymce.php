@@ -60,8 +60,8 @@
             var elf = $('#elfinder').elfinder({
                 <?php if($locale){ echo "lang: '$locale',\n"; } ?>
                 url : '<?= URL::action('Barryvdh\ElfinderBundle\ElfinderController@showConnector') ?>',  // connector URL
-                getFileCallback: function(url) { // editor callback
-                    FileBrowserDialogue.mySubmit(url); // pass selected file path to TinyMCE
+                getFileCallback: function(file) { // editor callback
+                    FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
                 }
             }).elfinder('instance');
         });

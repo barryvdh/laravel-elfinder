@@ -22,7 +22,7 @@ return array(
     |
     */
 
-    'access' => 'Barryvdh\ElfinderBundle\ElfinderBundleServiceProvider::checkAccess',
+    'access' => 'Barryvdh\ElfinderBundle\Elfinder::checkAccess',
 
     /*
     |--------------------------------------------------------------------------
