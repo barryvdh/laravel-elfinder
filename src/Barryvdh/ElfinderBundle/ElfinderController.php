@@ -23,6 +23,18 @@ class ElfinderController extends \BaseController {
         }
         return \View::make('elfinder-bundle::tinymce')->with(compact('dir', 'locale'));
     }
+
+    public function showTinyMCE4()
+    {
+
+        $dir = 'packages/barryvdh/elfinder-bundle';
+        $locale = \Config::get('app.locale');
+        if(!file_exists(public_path()."/$dir/js/i18n/elfinder.$locale.js")){
+            $locale = false;
+        }
+        return \View::make('elfinder-bundle::tinymce4')->with(compact('dir', 'locale'));
+    }
+
     public function showConnector(){
 
         $dir = \Config::get('elfinder-bundle::dir');
