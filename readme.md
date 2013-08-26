@@ -29,14 +29,42 @@ The default configuration requires a directory called 'files' in the public fold
 
 In your app/config/packages/barryvdh/elfinder-bundle, you can change the default folder, the access callback or define your own roots.
 
-### TinyMCE
+### TinyMCE 4.x
 
 You can add tinyMCE integration by adding the following route:
 
-    //TinyMCE 3.x
-    \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE');
-    //Or for the TinyMCE 4.x
     \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE4');
+
+In the TinyMCE init code, add the following line:
+
+```javascript
+file_browser_callback : elFinderBrowser
+```
+
+Then add the following function (change the `elfinder_url` to the correct path on your system):
+
+```javascript
+function elFinderBrowser (field_name, url, type, win) {
+  tinymce.activeEditor.windowManager.open({
+    file: '/elfinder/tinymce',// use an absolute path!
+    title: 'elFinder 2.0',
+    width: 900,
+    height: 450,
+    resizable: 'yes'
+  }, {
+    setUrl: function (url) {
+      win.document.getElementById(field_name).value = url;
+    }
+  });
+  return false;
+}
+```
+ 
+### TinyMCE 3.x
+
+You can add tinyMCE integration by adding the following route:
+
+    \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE');
 
 In the TinyMCE init code, add the following line:
 
