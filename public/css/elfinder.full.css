@@ -1,9 +1,9 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x (Nightly: 7f59c13) (2013-02-28)
+ * Version 2.1 (Nightly: 916091e) (2013-08-20)
  * http://elfinder.org
  * 
- * Copyright 2009-2012, Studio 42
+ * Copyright 2009-2013, Studio 42
  * Licensed under a 3 clauses BSD license
  */
 
@@ -808,6 +808,11 @@
 .elfinder-dialog-icon-archive,
 .elfinder-dialog-icon-extract     { background-position: 0 -365px; }
 .elfinder-dialog-icon-search      { background-position: 0 -402px; }
+.elfinder-dialog-icon-resize,
+.elfinder-dialog-icon-loadimg,
+.elfinder-dialog-icon-netmount,
+.elfinder-dialog-icon-netunmount,
+.elfinder-dialog-icon-dim         { background-position: 0 -434px; }
 
 /*********************** CONFIRM DIALOG **************************/
 

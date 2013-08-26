@@ -225,6 +225,8 @@ abstract class elFinderVolumeDriver {
 		'archiveMimes' => array(),
 		// Manual config for archivers. See example below. Leave empty for auto detect
 		'archivers'    => array(),
+		// plugin settings
+		'plugin'       => array(),
 		// required to fix bug on macos
 		'utf8fix'      => false,
 		 //                           й                 ё              Й               Ё              Ø         Å
@@ -795,8 +797,8 @@ abstract class elFinderVolumeDriver {
 		
 		if (!empty($this->options['archivers']['extract']) && is_array($this->options['archivers']['extract'])) {
 			foreach ($this->options['archivers']['extract'] as $mime => $conf) {
-				if (substr($mime, 'application/') === 0 
-				&& !empty($cons['cmd']) 
+				if (strpos($mime, 'application/') === 0
+				&& !empty($conf['cmd']) 
 				&& isset($conf['argc']) 
 				&& !empty($conf['ext'])
 				&& !isset($this->archivers['extract'][$mime])) {
@@ -828,6 +830,16 @@ abstract class elFinderVolumeDriver {
 	 **/
 	public function error() {
 		return $this->error;
+	}
+	
+	/**
+	 * Return Extention/MIME Table (elFinderVolumeDriver::$mimetypes)
+	 * 
+	 * @return array
+	 * @author Naoki Sawada
+	 */
+	public function getMimeTable() {
+		return elFinderVolumeDriver::$mimetypes;
 	}
 	
 	/**
@@ -877,6 +889,7 @@ abstract class elFinderVolumeDriver {
 			'disabled'      => $this->disabled,
 			'separator'     => $this->separator,
 			'copyOverwrite' => intval($this->options['copyOverwrite']),
+			'uploadMaxSize' => intval($this->uploadMaxSize),
 			'archivers'     => array(
 				// 'create'  => array_keys($this->archivers['create']),
 				// 'extract' => array_keys($this->archivers['extract']),
@@ -884,6 +897,21 @@ abstract class elFinderVolumeDriver {
 				'extract' => is_array($this->archivers['extract']) ? array_keys($this->archivers['extract']) : array()
 			)
 		);
+	}
+	
+	/**
+	 * Get plugin values of this options
+	 * 
+	 * @param string $name  Plugin name
+	 * @return NULL|array   Plugin values
+	 * @author Naoki Sawada
+	 */
+	public function getOptionsPlugin($name = '') {
+		if ($name) {
+			return isset($this->options['plugin'][$name])? $this->options['plugin'][$name] : array();
+		} else {
+			return $this->options['plugin'];
+		}
 	}
 	
 	/**
@@ -1776,6 +1804,61 @@ abstract class elFinderVolumeDriver {
 	}
 	
 	/**
+	 * Return temp path
+	 * 
+	 * @return string
+	 * @author Naoki Sawada
+	 */
+	public function getTempPath() {
+		if (@ $this->tmpPath) {
+			return $this->tmpPath;
+		} else if (@ $this->tmp) {
+			return $this->tmp;
+		} else if (@ $this->tmbPath) {
+			return $this->tmbPath;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * (Make &) Get upload taget dirctory hash
+	 * 
+	 * @param string $baseTargetHash
+	 * @param string $path
+	 * @param array  $result
+	 * @return boolean|string
+	 * @author Naoki Sawada
+	 */
+	public function getUploadTaget($baseTargetHash, $path, & $result) {
+		$base = $this->decode($baseTargetHash);
+		$targetHash = $baseTargetHash;
+		$path = ltrim($path, '/');
+		$dirs = explode('/', $path);
+		array_pop($dirs);
+		foreach($dirs as $dir) {
+			$targetPath = $this->_joinPath($base, $dir);
+			if (! $_realpath = $this->realpath($this->encode($targetPath))) {
+				if ($stat = $this->mkdir($targetHash, $dir)) {
+					$result['added'][] = $stat;
+					$targetHash = $stat['hash'];
+					$base = $this->decode($targetHash);
+				} else {
+					return false;
+				}
+			} else {
+				$targetHash = $this->encode($_realpath);
+				if ($this->dir($targetHash)) {
+					$base = $this->decode($targetHash);
+				} else {
+					return false;
+				}
+			}
+		}
+		return $targetHash;
+	}
+	
+	/**
 	 * Save error message
 	 *
 	 * @param  array  error 
@@ -2557,13 +2640,14 @@ abstract class elFinderVolumeDriver {
 	 **/
 	protected function remove($path, $force = false) {
 		$stat = $this->stat($path);
-		$stat['realpath'] = $path;
-		$this->rmTmb($stat);
-		$this->clearcache();
 		
 		if (empty($stat)) {
 			return $this->setError(elFinder::ERROR_RM, $this->_path($path), elFinder::ERROR_FILE_NOT_FOUND);
 		}
+		
+		$stat['realpath'] = $path;
+		$this->rmTmb($stat);
+		$this->clearcache();
 		
 		if (!$force && !empty($stat['locked'])) {
 			return $this->setError(elFinder::ERROR_LOCKED, $this->_path($path));

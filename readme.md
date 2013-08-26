@@ -36,7 +36,7 @@ You can add tinyMCE integration by adding the following route:
     //TinyMCE 3.x
     \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE');
     //Or for the TinyMCE 4.x
-    \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE4'); 
+    \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE4');
 
 In the TinyMCE init code, add the following line:
 
