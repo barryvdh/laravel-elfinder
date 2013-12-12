@@ -1,5 +1,7 @@
 ## elFinder Package for Laravel 4
 
+### Note: The package recently changed from elfinder-bundle to laravel-elfinder. The ServiceProvider has also changed. Please update your configuration!
+
 ### Installation
 
 Add this package to your composer.json and run composer update.
