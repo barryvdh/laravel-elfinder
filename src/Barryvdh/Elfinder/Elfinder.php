@@ -1,4 +1,4 @@
-<?php namespace Barryvdh\ElfinderBundle;
+<?php namespace Barryvdh\Elfinder;
 
 class Elfinder{
     public static function checkAccess($attr, $path, $data, $volume) {

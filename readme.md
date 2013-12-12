@@ -1,22 +1,22 @@
-## elFinder Bundle for Laravel 4
+## elFinder Package for Laravel 4
 
 ### Installation
 
 Add this package to your composer.json and run composer update.
 Add the ServiceProvider to the providers array in app/config/app.php
 
-    'Barryvdh\ElfinderBundle\ElfinderBundleServiceProvider'
+    'Barryvdh\Elfinder\ElfinderServiceProvider'
 
 You need to copy the assets to the public folder, using the following artisan command:
 
-    php artisan asset:publish barryvdh/elfinder-bundle
+    php artisan asset:publish barryvdh/laravel-elfinder
 
 You can now add the routes for elFinder to your routes.php
 
     Route::group(array('before' => 'auth'), function()
         {
-            \Route::get('elfinder', 'Barryvdh\ElfinderBundle\ElfinderController@showIndex');
-            \Route::any('elfinder/connector', 'Barryvdh\ElfinderBundle\ElfinderController@showConnector');
+            \Route::get('elfinder', 'Barryvdh\Elfinder\ElfinderController@showIndex');
+            \Route::any('elfinder/connector', 'Barryvdh\Elfinder\ElfinderController@showConnector');
         });
 
 Offcourse you can define your own filters/routes if you want.
@@ -25,15 +25,15 @@ Offcourse you can define your own filters/routes if you want.
 
 The default configuration requires a directory called 'files' in the public folder. You can change this by publishing the config file.
 
-    php artisan config:publish barryvdh/elfinder-bundle
+    php artisan config:publish barryvdh/laravel-elfinder
 
-In your app/config/packages/barryvdh/elfinder-bundle, you can change the default folder, the access callback or define your own roots.
+In your app/config/packages/barryvdh/laravel-elfinder, you can change the default folder, the access callback or define your own roots.
 
 ### TinyMCE 4.x
 
 You can add tinyMCE integration by adding the following route:
 
-    \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE4');
+    \Route::get('elfinder/tinymce', 'Barryvdh\Elfinder\ElfinderController@showTinyMCE4');
 
 In the TinyMCE init code, add the following line:
 
@@ -64,7 +64,7 @@ function elFinderBrowser (field_name, url, type, win) {
 
 You can add tinyMCE integration by adding the following route:
 
-    \Route::get('elfinder/tinymce', 'Barryvdh\ElfinderBundle\ElfinderController@showTinyMCE');
+    \Route::get('elfinder/tinymce', 'Barryvdh\Elfinder\ElfinderController@showTinyMCE');
 
 In the TinyMCE init code, add the following line:
 

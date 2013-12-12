@@ -41,7 +41,7 @@
             var elf = $('#elfinder').elfinder({
                 // set your elFinder options here
                 <?php if($locale){ echo "lang: '$locale',\n"; } ?>
-                url: '<?= URL::action('Barryvdh\ElfinderBundle\ElfinderController@showConnector') ?>',  // connector URL
+                url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
                 getFileCallback: function(file) { // editor callback
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
                 }

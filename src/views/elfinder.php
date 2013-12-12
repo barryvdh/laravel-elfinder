@@ -28,7 +28,7 @@
         $().ready(function() {
             $('#elfinder').elfinder({
                 <?php if($locale){ echo "lang: '$locale',\n"; } ?>
-                url : '<?= URL::action('Barryvdh\ElfinderBundle\ElfinderController@showConnector') ?>'  // connector URL (REQUIRED)
+                url : '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>'  // connector URL (REQUIRED)
 
             });
         });

@@ -1,8 +1,8 @@
-<?php namespace Barryvdh\ElfinderBundle;
+<?php namespace Barryvdh\Elfinder;
 
 use Illuminate\Support\ServiceProvider;
 
-class ElfinderBundleServiceProvider extends ServiceProvider {
+class ElfinderServiceProvider extends ServiceProvider {
 
 	/**
 	 * Indicates if loading of the provider is deferred.
@@ -18,7 +18,7 @@ class ElfinderBundleServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('barryvdh/elfinder-bundle');
+		$this->package('barryvdh/laravel-elfinder');
 	}
 
 	/**

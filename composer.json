@@ -1,6 +1,7 @@
 {
-    "name": "barryvdh/elfinder-bundle",
-    "description": "A Laravel Bundle to integrate elFinder 2.0",
+    "name": "barryvdh/laravel-elfinder",
+	"keywords": ["laravel", "elfinder", "tinymce", "filebrowser"],
+    "description": "A Laravel Package to integrate elFinder 2",
     "authors": [
         {
             "name": "Barry vd. Heuvel",
@@ -16,7 +17,7 @@
             "src/elFinder"
         ],
         "psr-0": {
-            "Barryvdh\\ElfinderBundle": "src/"
+            "Barryvdh\\Elfinder": "src/"
         }
     },
     "minimum-stability": "dev"

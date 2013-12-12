@@ -1,45 +1,46 @@
 <?php
-namespace Barryvdh\ElfinderBundle;
+namespace Barryvdh\Elfinder;
 class ElfinderController extends \BaseController {
 
+	protected $package = 'laravel-elfinder';
     public function showIndex()
     {
 
-        $dir = 'packages/barryvdh/elfinder-bundle';
+        $dir = 'packages/barryvdh/'.$this->package;
         $locale = \Config::get('app.locale');
         if(!file_exists(public_path()."/$dir/js/i18n/elfinder.$locale.js")){
             $locale = false;
         }
-        return \View::make('elfinder-bundle::elfinder')->with(compact('dir', 'locale'));
+        return \View::make($this->package.'::elfinder')->with(compact('dir', 'locale'));
     }
 
     public function showTinyMCE()
     {
 
-        $dir = 'packages/barryvdh/elfinder-bundle';
+        $dir = 'packages/barryvdh/'.$this->package;
         $locale = \Config::get('app.locale');
         if(!file_exists(public_path()."/$dir/js/i18n/elfinder.$locale.js")){
             $locale = false;
         }
-        return \View::make('elfinder-bundle::tinymce')->with(compact('dir', 'locale'));
+        return \View::make($this->package.'::tinymce')->with(compact('dir', 'locale'));
     }
 
     public function showTinyMCE4()
     {
 
-        $dir = 'packages/barryvdh/elfinder-bundle';
+        $dir = 'packages/barryvdh/'.$this->package;
         $locale = \Config::get('app.locale');
         if(!file_exists(public_path()."/$dir/js/i18n/elfinder.$locale.js")){
             $locale = false;
         }
-        return \View::make('elfinder-bundle::tinymce4')->with(compact('dir', 'locale'));
+        return \View::make($this->package.'::tinymce4')->with(compact('dir', 'locale'));
     }
 
     public function showConnector(){
 
-        $dir = \Config::get('elfinder-bundle::dir');
+        $dir = \Config::get($this->package.'::dir');
 
-        $roots = \Config::get('elfinder-bundle::roots');
+        $roots = \Config::get($this->package.'::roots');
 
         if(!$roots){
             $roots = array(
@@ -47,7 +48,7 @@ class ElfinderController extends \BaseController {
                     'driver'        => 'LocalFileSystem',                       // driver for accessing file system (REQUIRED)
                     'path'          => public_path().DIRECTORY_SEPARATOR.$dir,  // path to files (REQUIRED)
                     'URL'           => asset($dir),                             // URL to files (REQUIRED)
-                    'accessControl' => \Config::get('elfinder-bundle::access')  // filter callback (OPTIONAL)
+                    'accessControl' => \Config::get($this->package.'::access')  // filter callback (OPTIONAL)
                 )
             );
         }
