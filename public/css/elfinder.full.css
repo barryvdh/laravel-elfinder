@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1 (Nightly: 916091e) (2013-08-20)
+ * Version 2.1 (Nightly: f41d4ca) (2014-03-06)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -475,6 +475,7 @@
 	height:80px;
 	padding-bottom:2px;
 	cursor:default;
+	border:none;
 /*	overflow:hidden;*/
 /*	position:relative;*/
 }
@@ -1436,6 +1437,9 @@ embed.elfinder-quicklook-preview-audio {
 	overflow:hidden;
 	position:relative;
 	border:0 solid;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
 }
 
 .elfinder .ui-icon-search { cursor:pointer;}

@@ -315,7 +315,7 @@ abstract class elFinderVolumeDriver {
 	 *
 	 * @var array
 	 **/
-	protected $diabled = array();
+	protected $disabled = array();
 	
 	/**
 	 * default extensions/mimetypes for mimeDetect == 'internal' 
@@ -1133,11 +1133,12 @@ abstract class elFinderVolumeDriver {
 	/**
 	 * Return part of dirs tree from required dir up to root dir
 	 *
-	 * @param  string  $hash  directory hash
+	 * @param  string    $hash   directory hash
+	 * @param  bool|null $lineal only lineal parents
 	 * @return array
 	 * @author Dmitry (dio) Levashov
 	 **/
-	public function parents($hash) {
+	public function parents($hash, $lineal = false) {
 		if (($current = $this->dir($hash)) == false) {
 			return false;
 		}
@@ -1153,7 +1154,7 @@ abstract class elFinderVolumeDriver {
 			}
 			
 			array_unshift($tree, $stat);
-			if ($path != $this->root) {
+			if (!$lineal && ($path != $this->root)) {
 				foreach ($this->gettree($path, 0) as $dir) {
 					if (!in_array($dir, $tree)) {
 						$tree[] = $dir;
@@ -3266,6 +3267,142 @@ abstract class elFinderVolumeDriver {
 			return mb_strpos(mb_strtolower($haystack), mb_strtolower($needle), $offset);
 		} 
 		return stripos($haystack , $needle , $offset);
+	}
+
+	/**
+	 * Get server side available archivers
+	 * 
+	 * @param bool $use_cache
+	 * @return array
+	 */
+	protected function getArchivers($use_cache = true) {
+		if (!function_exists('proc_open')) {
+			return array();
+		}
+		
+		if ($use_cache && isset($_SESSION['ELFINDER_ARCHIVERS_CACHE']) && is_array($_SESSION['ELFINDER_ARCHIVERS_CACHE'])) {
+			return $_SESSION['ELFINDER_ARCHIVERS_CACHE'];
+		}
+		
+		$arcs = array(
+				'create'  => array(),
+				'extract' => array()
+		);
+		
+		$this->procExec('tar --version', $o, $ctar);
+		
+		if ($ctar == 0) {
+			$arcs['create']['application/x-tar']  = array('cmd' => 'tar', 'argc' => '-cf', 'ext' => 'tar');
+			$arcs['extract']['application/x-tar'] = array('cmd' => 'tar', 'argc' => '-xf', 'ext' => 'tar');
+			unset($o);
+			$test = $this->procExec('gzip --version', $o, $c);
+		
+			if ($c == 0) {
+				$arcs['create']['application/x-gzip']  = array('cmd' => 'tar', 'argc' => '-czf', 'ext' => 'tgz');
+				$arcs['extract']['application/x-gzip'] = array('cmd' => 'tar', 'argc' => '-xzf', 'ext' => 'tgz');
+			}
+			unset($o);
+			$test = $this->procExec('bzip2 --version', $o, $c);
+			if ($c == 0) {
+				$arcs['create']['application/x-bzip2']  = array('cmd' => 'tar', 'argc' => '-cjf', 'ext' => 'tbz');
+				$arcs['extract']['application/x-bzip2'] = array('cmd' => 'tar', 'argc' => '-xjf', 'ext' => 'tbz');
+			}
+		}
+		unset($o);
+		$this->procExec('zip -v', $o, $c);
+		if ($c == 0) {
+			$arcs['create']['application/zip']  = array('cmd' => 'zip', 'argc' => '-r9', 'ext' => 'zip');
+		}
+		unset($o);
+		$this->procExec('unzip --help', $o, $c);
+		if ($c == 0) {
+			$arcs['extract']['application/zip'] = array('cmd' => 'unzip', 'argc' => '',  'ext' => 'zip');
+		}
+		unset($o);
+		$this->procExec('rar --version', $o, $c);
+		if ($c == 0 || $c == 7) {
+			$arcs['create']['application/x-rar']  = array('cmd' => 'rar', 'argc' => 'a -inul', 'ext' => 'rar');
+			$arcs['extract']['application/x-rar'] = array('cmd' => 'rar', 'argc' => 'x -y',    'ext' => 'rar');
+		} else {
+			unset($o);
+			$test = $this->procExec('unrar', $o, $c);
+			if ($c==0 || $c == 7) {
+				$arcs['extract']['application/x-rar'] = array('cmd' => 'unrar', 'argc' => 'x -y', 'ext' => 'rar');
+			}
+		}
+		unset($o);
+		$this->procExec('7za --help', $o, $c);
+		if ($c == 0) {
+			$arcs['create']['application/x-7z-compressed']  = array('cmd' => '7za', 'argc' => 'a', 'ext' => '7z');
+			$arcs['extract']['application/x-7z-compressed'] = array('cmd' => '7za', 'argc' => 'e -y', 'ext' => '7z');
+				
+			if (empty($arcs['create']['application/x-gzip'])) {
+				$arcs['create']['application/x-gzip'] = array('cmd' => '7za', 'argc' => 'a -tgzip', 'ext' => 'tar.gz');
+			}
+			if (empty($arcs['extract']['application/x-gzip'])) {
+				$arcs['extract']['application/x-gzip'] = array('cmd' => '7za', 'argc' => 'e -tgzip -y', 'ext' => 'tar.gz');
+			}
+			if (empty($arcs['create']['application/x-bzip2'])) {
+				$arcs['create']['application/x-bzip2'] = array('cmd' => '7za', 'argc' => 'a -tbzip2', 'ext' => 'tar.bz');
+			}
+			if (empty($arcs['extract']['application/x-bzip2'])) {
+				$arcs['extract']['application/x-bzip2'] = array('cmd' => '7za', 'argc' => 'a -tbzip2 -y', 'ext' => 'tar.bz');
+			}
+			if (empty($arcs['create']['application/zip'])) {
+				$arcs['create']['application/zip'] = array('cmd' => '7za', 'argc' => 'a -tzip -l', 'ext' => 'zip');
+			}
+			if (empty($arcs['extract']['application/zip'])) {
+				$arcs['extract']['application/zip'] = array('cmd' => '7za', 'argc' => 'e -tzip -y', 'ext' => 'zip');
+			}
+			if (empty($arcs['create']['application/x-tar'])) {
+				$arcs['create']['application/x-tar'] = array('cmd' => '7za', 'argc' => 'a -ttar -l', 'ext' => 'tar');
+			}
+			if (empty($arcs['extract']['application/x-tar'])) {
+				$arcs['extract']['application/x-tar'] = array('cmd' => '7za', 'argc' => 'e -ttar -y', 'ext' => 'tar');
+			}
+		} else if (substr(PHP_OS,0,3) === 'WIN') {
+			// check `7z` for Windows server.
+			unset($o);
+			$this->procExec('7z', $o, $c);
+			if ($c == 0) {
+				$arcs['create']['application/x-7z-compressed']  = array('cmd' => '7z', 'argc' => 'a -mx0', 'ext' => '7z');
+				$arcs['extract']['application/x-7z-compressed'] = array('cmd' => '7z', 'argc' => 'x -y', 'ext' => '7z');
+					
+				if (empty($arcs['create']['application/x-gzip'])) {
+					$arcs['create']['application/x-gzip'] = array('cmd' => '7z', 'argc' => 'a -tgzip -mx0', 'ext' => 'tar.gz');
+				}
+				if (empty($arcs['extract']['application/x-gzip'])) {
+					$arcs['extract']['application/x-gzip'] = array('cmd' => '7z', 'argc' => 'x -tgzip -y', 'ext' => 'tar.gz');
+				}
+				if (empty($arcs['create']['application/x-bzip2'])) {
+					$arcs['create']['application/x-bzip2'] = array('cmd' => '7z', 'argc' => 'a -tbzip2 -mx0', 'ext' => 'tar.bz');
+				}
+				if (empty($arcs['extract']['application/x-bzip2'])) {
+					$arcs['extract']['application/x-bzip2'] = array('cmd' => '7z', 'argc' => 'x -tbzip2 -y', 'ext' => 'tar.bz');
+				}
+				if (empty($arcs['create']['application/zip'])) {
+					$arcs['create']['application/zip'] = array('cmd' => '7z', 'argc' => 'a -tzip -l -mx0', 'ext' => 'zip');
+				}
+				if (empty($arcs['extract']['application/zip'])) {
+					$arcs['extract']['application/zip'] = array('cmd' => '7z', 'argc' => 'x -tzip -y', 'ext' => 'zip');
+				}
+				if (empty($arcs['create']['application/x-tar'])) {
+					$arcs['create']['application/x-tar'] = array('cmd' => '7z', 'argc' => 'a -ttar -l -mx0', 'ext' => 'tar');
+				}
+				if (empty($arcs['extract']['application/x-tar'])) {
+					$arcs['extract']['application/x-tar'] = array('cmd' => '7z', 'argc' => 'x -ttar -y', 'ext' => 'tar');
+				}
+				if (empty($arcs['create']['application/x-rar'])) {
+					$arcs['create']['application/x-rar']  = array('cmd' => '7z', 'argc' => 'a -trar -l -mx0', 'ext' => 'rar');
+				}
+				if (empty($arcs['extract']['application/x-rar'])) {
+					$arcs['extract']['application/x-rar'] = array('cmd' => '7z', 'argc' => 'x -trar -y', 'ext' => 'rar');
+				}
+			}
+		}
+		
+		$_SESSION['ELFINDER_ARCHIVERS_CACHE'] = $arcs;
+		return $arcs;
 	}
 
 	/**==================================* abstract methods *====================================**/

@@ -51,6 +51,16 @@ class elFinderConnector {
 	public function run() {
 		$isPost = $_SERVER["REQUEST_METHOD"] == 'POST';
 		$src    = $_SERVER["REQUEST_METHOD"] == 'POST' ? $_POST : $_GET;
+		if ($isPost && !$src && $rawPostData = @file_get_contents('php://input')) {
+			// for support IE XDomainRequest()
+			$parts = explode('&', $rawPostData);
+			foreach($parts as $part) {
+				list($key, $value) = array_pad(explode('=', $part), 2, '');
+				$src[$key] = rawurldecode($value);
+			}
+			$_POST = $src;
+			$_REQUEST = array_merge_recursive($src, $_REQUEST);
+		}
 		$cmd    = isset($src['cmd']) ? $src['cmd'] : '';
 		$args   = array();
 		
@@ -90,7 +100,7 @@ class elFinderConnector {
 		
 		$args['debug'] = isset($src['debug']) ? !!$src['debug'] : false;
 		
-		$this->output($this->elFinder->exec($cmd, $args));
+		$this->output($this->elFinder->exec($cmd, $this->input_filter($args)));
 	}
 	
 	/**
@@ -130,4 +140,24 @@ class elFinderConnector {
 		
 	}
 	
+	/**
+	 * Remove null & stripslashes applies on "magic_quotes_gpc"
+	 * 
+	 * @param  mixed  $args
+	 * @return mixed
+	 * @author Naoki Sawada
+	 */
+	private function input_filter($args) {
+		static $magic_quotes_gpc = NULL;
+		
+		if ($magic_quotes_gpc === NULL)
+			$magic_quotes_gpc = (version_compare(PHP_VERSION, '5.4', '<') && get_magic_quotes_gpc());
+		
+		if (is_array($args)) {
+			return array_map(array(& $this, 'input_filter'), $args);
+		}
+		$res = str_replace("\0", '', $args);
+		$magic_quotes_gpc && ($res = stripslashes($res));
+		return $res;
+	}
 }// END class 
