@@ -1,6 +1,6 @@
 ## elFinder Package for Laravel 4
 
-### Note: The package recently changed from elfinder-bundle to laravel-elfinder. The ServiceProvider has also changed. Please update your configuration and re-publish the assets.
+### Note: Use `php artisan elfinder:publish` instead of the old publish command, for future changes!
 
 ### Installation
 
@@ -11,7 +11,7 @@ Add the ServiceProvider to the providers array in app/config/app.php
 
 You need to copy the assets to the public folder, using the following artisan command:
 
-    php artisan asset:publish barryvdh/laravel-elfinder
+    php artisan elfinder:publish
 	
 Remember to publish the assets after each update (or add the command to your post-update-cmd in composer.json)
 

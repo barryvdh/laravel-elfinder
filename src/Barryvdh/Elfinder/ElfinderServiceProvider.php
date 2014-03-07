@@ -28,7 +28,13 @@ class ElfinderServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-
+        $this->app['command.elfinder.publish'] = $this->app->share(function($app)
+        {
+            //Make sure the asset publisher is registered.
+            $app->register('Illuminate\Foundation\Providers\PublisherServiceProvider');
+            return new Console\PublishCommand($app['asset.publisher']);
+        });
+        $this->commands('command.elfinder.publish');
 	}
 
 	/**
@@ -38,7 +44,7 @@ class ElfinderServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array();
+		return array('command.elfinder.publish',);
 	}
 
 }
