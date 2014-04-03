@@ -102,7 +102,7 @@ function elFinderBrowser (field_name, url, type, win) {
 
 You can add CKeditor integration by adding the following route:
 
-    \Route::get('elfinder/ckeditor', 'Barryvdh\Elfinder\ElfinderController@showshowTinyMCE4');
+    \Route::get('elfinder/ckeditor', 'Barryvdh\Elfinder\ElfinderController@showCKeditor4');
 
 In the CKeditor config file:
 
