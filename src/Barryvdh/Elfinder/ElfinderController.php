@@ -29,10 +29,9 @@ class ElfinderController extends \BaseController
         }
         return View::make($this->package . '::tinymce')->with(compact('dir', 'locale'));
     }
-    
+
     public function showTinyMCE4()
     {
-
         $dir = 'packages/barryvdh/' . $this->package;
         $locale = Config::get('app.locale');
         if (!file_exists(public_path() . "/$dir/js/i18n/elfinder.$locale.js"))
