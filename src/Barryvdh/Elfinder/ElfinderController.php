@@ -29,7 +29,7 @@ class ElfinderController extends \BaseController
         }
         return View::make($this->package . '::tinymce')->with(compact('dir', 'locale'));
     }
-
+    
     public function showTinyMCE4()
     {
 
