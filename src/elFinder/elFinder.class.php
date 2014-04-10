@@ -26,7 +26,13 @@ class elFinder {
 	protected $volumes = array();
 	
 	public static $netDrivers = array();
-
+	
+	/**
+	 * Session key of net mount volumes
+	 * @var string
+	 */
+	protected $netVolumesSessionKey = '';
+	
 	/**
 	 * Mounted volumes count
 	 * Required to create unique volume id
@@ -62,7 +68,7 @@ class elFinder {
 		'duplicate' => array('targets' => true, 'suffix' => false),
 		'paste'     => array('dst' => true, 'targets' => true, 'cut' => false, 'mimes' => false),
 		'upload'    => array('target' => true, 'FILES' => true, 'mimes' => false, 'html' => false, 'upload' => false, 'name' => false, 'upload_path' => false),
-		'get'       => array('target' => true),
+		'get'       => array('target' => true, 'conv' => false),
 		'put'       => array('target' => true, 'content' => '', 'mimes' => false),
 		'archive'   => array('targets' => true, 'type' => true, 'mimes' => false),
 		'extract'   => array('target' => true, 'mimes' => false),
@@ -70,7 +76,9 @@ class elFinder {
 		'info'      => array('targets' => true),
 		'dim'       => array('target' => true),
 		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'degree' => false),
-		'netmount'  => array('protocol' => true, 'host' => true, 'path' => false, 'port' => false, 'user' => true, 'pass' => true, 'alias' => false, 'options' => false)
+		'netmount'  => array('protocol' => true, 'host' => true, 'path' => false, 'port' => false, 'user' => true, 'pass' => true, 'alias' => false, 'options' => false),
+		'url'       => array('target' => true, 'options' => false),
+		'callback'  => array('node' => true, 'json' => false, 'bind' => false, 'done' => false)
 	);
 	
 	/**
@@ -127,6 +135,14 @@ class elFinder {
 	 **/
 	public $mountErrors = array();
 	
+	/**
+	 * URL for callback output window for CORS
+	 * redirect to this URL when callback output
+	 * 
+	 * @var string URL
+	 */
+	protected $callbackWindowURL = '';
+	
 	// Errors messages
 	const ERROR_UNKNOWN           = 'errUnknown';
 	const ERROR_UNKNOWN_CMD       = 'errUnknownCmd';
@@ -173,8 +189,10 @@ class elFinder {
 	const ERROR_ARC_MAXSIZE       = 'errArcMaxSize';
 	const ERROR_RESIZE            = 'errResize';
 	const ERROR_UNSUPPORT_TYPE    = 'errUsupportType';
+	const ERROR_CONV_UTF8         = 'errConvUTF8';
 	const ERROR_NOT_UTF8_CONTENT  = 'errNotUTF8Content';
 	const ERROR_NETMOUNT          = 'errNetMount';
+	const ERROR_NETUNMOUNT        = 'errNetUnMount';
 	const ERROR_NETMOUNT_NO_DRIVER = 'errNetMountNoDriver';
 	const ERROR_NETMOUNT_FAILED       = 'errNetMountFailed';
 
@@ -202,6 +220,8 @@ class elFinder {
 		$this->time  = $this->utime();
 		$this->debug = (isset($opts['debug']) && $opts['debug'] ? true : false);
 		$this->timeout = (isset($opts['timeout']) ? $opts['timeout'] : 0);
+		$this->netVolumesSessionKey = !empty($opts['netVolumesSessionKey'])? $opts['netVolumesSessionKey'] : 'elFinderNetVolumes';
+		$this->callbackWindowURL = (isset($opts['callbackWindowURL']) ? $opts['callbackWindowURL'] : '');
 		
 		setlocale(LC_ALL, !empty($opts['locale']) ? $opts['locale'] : 'en_US.UTF-8');
 
@@ -520,7 +540,7 @@ class elFinder {
 	 * @author Dmitry (dio) Levashov
 	 */
 	protected function getNetVolumes() {
-		return isset($_SESSION['elFinderNetVolumes']) && is_array($_SESSION['elFinderNetVolumes']) ? $_SESSION['elFinderNetVolumes'] : array();
+		return isset($_SESSION[$this->netVolumesSessionKey]) && is_array($_SESSION[$this->netVolumesSessionKey]) ? $_SESSION[$this->netVolumesSessionKey] : array();
 	}
 
 	/**
@@ -531,7 +551,7 @@ class elFinder {
 	 * @author Dmitry (dio) Levashov
 	 */
 	protected function saveNetVolumes($volumes) {
-		$_SESSION['elFinderNetVolumes'] = $volumes;
+		$_SESSION[$this->netVolumesSessionKey] = $volumes;
 	}
 
 	/**
@@ -584,10 +604,29 @@ class elFinder {
 	protected function netmount($args) {
 		$options  = array();
 		$protocol = $args['protocol'];
-		$driver   = isset(self::$netDrivers[$protocol]) ? $protocol : '';
-		$class    = 'elfindervolume'.$protocol;
+		
+		if ($protocol === 'netunmount') {
+			if (isset($_SESSION) && is_array($_SESSION) && isset($_SESSION[$this->netVolumesSessionKey][$args['host']])) {
+				$res = true;
+				$netVolumes = $this->getNetVolumes();
+				$key = $args['host'];
+				$volume = $this->volume($args['user']);
+				if (method_exists($volume, 'netunmount')) {
+					$res = $volume->netunmount($netVolumes, $key);
+				}
+				if ($res) {
+					unset($netVolumes[$key]);
+					$this->saveNetVolumes($netVolumes);
+					return array('sync' => true);
+				}
+			}
+			return array('error' => $this->error(self::ERROR_NETUNMOUNT));
+		}
+		
+		$driver   = isset(self::$netDrivers[$protocol]) ? self::$netDrivers[$protocol] : '';
+		$class    = 'elfindervolume'.$driver;
 
-		if (!$driver) {
+		if (!class_exists($class)) {
 			return array('error' => $this->error(self::ERROR_NETMOUNT, $args['host'], self::ERROR_NETMOUNT_NO_DRIVER));
 		}
 
@@ -608,15 +647,37 @@ class elFinder {
 		}
 
 		$volume = new $class();
-
+		
+		if (method_exists($volume, 'netmountPrepare')) {
+			$options = $volume->netmountPrepare($options);
+			if (isset($options['exit'])) {
+				if ($options['exit'] === 'callback') {
+					$this->callback($options['out']);
+				}
+				return $options;
+			}
+		}
+		
+		$netVolumes = $this->getNetVolumes();
 		if ($volume->mount($options)) {
-			$netVolumes        = $this->getNetVolumes();
+			if (! $key = @ $volume->netMountKey) {
+				$key = md5($protocol . '-' . join('-', $options));
+			}
 			$options['driver'] = $driver;
-			$netVolumes[]      = $options;
-			$netVolumes        = array_unique($netVolumes);
+			$options['netkey'] = $key;
+			$netVolumes[$key]  = $options;
 			$this->saveNetVolumes($netVolumes);
-			return array('sync' => true);
+			$rootstat = $volume->file($volume->root());
+			$rootstat['netkey'] = $key;
+			return array('added' => array($rootstat));
 		} else {
+			if (! $key = @ $volume->netMountKey) {
+				$key = md5($protocol . '-' . join('-', $options));
+			}
+			if (isset($netVolumes[$key])) {
+				unset($netVolumes[$key]);
+				$this->saveNetVolumes($netVolumes);
+			}
 			return array('error' => $this->error(self::ERROR_NETMOUNT, $args['host'], implode(' ', $volume->error())));
 		}
 
@@ -1172,6 +1233,66 @@ class elFinder {
 	}
 	
 	/**
+	 * Detect file type extension by local path
+	 * 
+	 * @param  string $path Local path
+	 * @return string file type extension with dot
+	 * @author Naoki Sawada
+	 */
+	protected function detectFileExtension($path) {
+		static $type, $finfo, $extTable;
+		if (!$type) {
+			$keys = array_keys($this->volumes);
+			$volume = $this->volumes[$keys[0]];
+			$extTable = array_flip(array_unique($volume->getMimeTable()));
+			
+			if (class_exists('finfo')) {
+				$tmpFileInfo = @explode(';', @finfo_file(finfo_open(FILEINFO_MIME), __FILE__));
+			} else {
+				$tmpFileInfo = false;
+			}
+			$regexp = '/text\/x\-(php|c\+\+)/';
+			if ($tmpFileInfo && preg_match($regexp, array_shift($tmpFileInfo))) {
+				$type = 'finfo';
+				$finfo = finfo_open(FILEINFO_MIME);
+			} elseif (function_exists('mime_content_type')
+					&& preg_match($regexp, array_shift(explode(';', mime_content_type(__FILE__))))) {
+				$type = 'mime_content_type';
+			} elseif (function_exists('getimagesize')) {
+				$type = 'getimagesize';
+			} else {
+				$type = 'none';
+			}
+		}
+		
+		$mime = '';
+		if ($type === 'finfo') {
+			$mime = @finfo_file($finfo, $path);
+		} elseif ($type === 'mime_content_type') {
+			$mime = mime_content_type($path);
+		} elseif ($type === 'getimagesize') {
+			if ($img = @getimagesize($path)) {
+				$mime = $img['mime'];
+			}
+		}
+		
+		if ($mime) {
+			$mime = explode(';', $mime);
+			$mime = trim($mime[0]);
+			
+			if (in_array($mime, array('application/x-empty', 'inode/x-empty'))) {
+				// finfo return this mime for empty files
+				$mime = 'text/plain';
+			} elseif ($mime == 'application/x-zip') {
+				// http://elrte.org/redmine/issues/163
+				$mime = 'application/zip';
+			}
+		}
+		
+		return ($mime && isset($extTable[$mime]))? ('.' . $extTable[$mime]) : '';
+	}
+	
+	/**
 	 * Save uploaded files
 	 *
 	 * @param  array
@@ -1190,11 +1311,12 @@ class elFinder {
 		}
 		
 		// file extentions table by MIME
-		$extTable = array_flip($volume->getMimeTable());
+		$extTable = array_flip(array_unique($volume->getMimeTable()));
 		
 		$non_uploads = array();
 		if (empty($files)) {
 			if (isset($args['upload']) && is_array($args['upload'])) {
+				$names = array();
 				foreach($args['upload'] as $i => $url) {
 					// check is data:
 					if (substr($url, 0, 5) === 'data:') {
@@ -1223,8 +1345,21 @@ class elFinder {
 							if ($tmpfname) {
 								if (file_put_contents($tmpfname, $data)) {
 									$non_uploads[$tmpfname] = true;
+									$_name = preg_replace('/[\/\\?*:|"<>]/', '_', $_name);
+									list($_a, $_b) = array_pad(explode('.', $_name, 2), 2, '');
+									if ($_b === '') {
+										$_b = $this->detectFileExtension($tmpfname);
+										$_name = $_a.$_b;
+									} else {
+										$_b = '.'.$_b;
+									}
+									if (isset($names[$_name])) {
+										$_name = $_a.'_'.$names[$_name]++.$_b;
+									} else {
+										$names[$_name] = 1;
+									}
 									$files['tmp_name'][$i] = $tmpfname;
-									$files['name'][$i] = preg_replace('/[\/\\?*:|"<>]/', '_', $_name);
+									$files['name'][$i] = $_name;
 									$files['error'][$i] = 0;
 								} else {
 									@ unlink($tmpfname);
@@ -1351,10 +1486,25 @@ class elFinder {
 			return array('error' => $this->error(self::ERROR_OPEN, $volume->path($target), $volume->error()));
 		}
 		
+		if ($args['conv'] && function_exists('mb_detect_encoding') && function_exists('mb_convert_encoding')) {
+			$mime = isset($file['mime'])? $file['mime'] : '';
+			if ($mime && strtolower(substr($mime, 0, 4)) === 'text') {
+				if ($enc = mb_detect_encoding ( $content , mb_detect_order(), true)) {
+					if (strtolower($enc) !== 'utf-8') {
+						$content = mb_convert_encoding($content, 'UTF-8', $enc);
+					}
+				}
+			}
+		}
+		
 		$json = json_encode($content);
 
-		if ($json == 'null' && strlen($json) < strlen($content)) {
-			return array('error' => $this->error(self::ERROR_NOT_UTF8_CONTENT, $volume->path($target)));
+		if ($json === false || strlen($json) < strlen($content)) {
+			if ($args['conv']) {
+				return array('error' => $this->error(self::ERROR_CONV_UTF8,self::ERROR_NOT_UTF8_CONTENT, $volume->path($target)));
+			} else {
+				return array('doconv' => true);
+			}
 		}
 		
 		return array('content' => $content);
@@ -1507,6 +1657,88 @@ class elFinder {
 		return ($file = $volume->resize($target, $width, $height, $x, $y, $mode, $bg, $degree))
 			? array('changed' => array($file))
 			: array('error' => $this->error(self::ERROR_RESIZE, $volume->path($target), $volume->error()));
+	}
+	
+	/**
+	* Return content URL
+	*
+	* @param  array  $args  command arguments
+	* @return array
+	* @author Naoki Sawada
+	**/
+	protected function url($args) {
+		$target = $args['target'];
+		$options = isset($args['options'])? $args['options'] : array();
+		if (($volume = $this->volume($target)) != false) {
+			$url = $volume->getContentUrl($target, $options);
+			return $url ? array('url' => $url) : array();
+		}
+		return array();
+	}
+
+	/**
+	 * Output callback result with JavaScript that control elFinder
+	 * or HTTP redirect to callbackWindowURL
+	 * 
+	 * @param  array  command arguments
+	 * @author Naoki Sawada
+	 */
+	protected function callback($args) {
+		$checkReg = '/[^a-zA-Z0-9;._-]/';
+		$node = (isset($args['node']) && !preg_match($checkReg, $args['node']))? $args['node'] : '';
+		$json = (isset($args['json']) && @json_decode($args['json']))? $args['json'] : '{}';
+		$bind  = (isset($args['bind']) && !preg_match($checkReg, $args['bind']))? $args['bind'] : '';
+		$done = (!empty($args['done']));
+		
+		while( ob_get_level() ) {
+			if (! ob_end_clean()) {
+				break;
+			}
+		}
+		
+		if ($done || ! $this->callbackWindowURL) {
+			$script = '';
+			if ($node) {
+				$script .= '
+					var w = window.opener || weindow.parent || window
+					var elf = w.document.getElementById(\''.$node.'\').elfinder;
+					if (elf) {
+						var data = '.$json.';
+						data.warning && elf.error(data.warning);
+						data.removed && data.removed.length && elf.remove(data);
+						data.added   && data.added.length   && elf.add(data);
+						data.changed && data.changed.length && elf.change(data);';
+				if ($bind) {
+					$script .= '
+						elf.trigger(\''.$bind.'\', data);';
+				}
+				$script .= '
+						data.sync && elf.sync();
+					}';
+			}
+			$script .= 'window.close();';
+			
+			$out = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><script>'.$script.'</script></head><body><a href="#" onlick="window.close();return false;">Close this window</a></body></html>';
+			
+			header('Content-Type: text/html; charset=utf-8');
+			header('Content-Length: '.strlen($out));
+			header('Cache-Control: private');
+			header('Pragma: no-cache');
+			
+			echo $out;
+			
+		} else {
+			$url = $this->callbackWindowURL;
+			$url .= ((strpos($url, '?') === false)? '?' : '&')
+				 . '&node=' . rawurlencode($node)
+				 . (($json !== '{}')? ('&json=' . rawurlencode($json)) : '')
+				 . ($bind? ('&bind=' .  rawurlencode($bind)) : '')
+				 . '&done=1';
+			
+			header('Location: ' . $url);
+			
+		}
+		exit();
 	}
 	
 	/***************************************************************************/
