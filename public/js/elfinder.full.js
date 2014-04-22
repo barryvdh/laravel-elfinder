@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1 (Nightly: bf0193b) (2014-04-10)
+ * Version 2.1 (Nightly: d373a0a) (2014-04-21)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -2053,14 +2053,14 @@ elFinder.prototype = {
 		try {
 			data = $.parseJSON(text);
 		} catch (e) {
-			return {error : ['errResponse', 'errDataNotJSON']}
+			return {error : ['errResponse', 'errDataNotJSON']};
 		}
 		
 		if (!this.validResponse('upload', data)) {
 			return {error : ['errResponse']};
 		}
 		data = this.normalize(data);
-		data.removed = $.map(data.added||[], function(f) { return f.hash; })
+		data.removed = $.merge((data.removed || []), $.map(data.added||[], function(f) { return f.hash; }));
 		return data;
 		
 	},
@@ -2310,11 +2310,18 @@ elFinder.prototype = {
 		// upload transport using XMLHttpRequest
 		xhr : function(data, fm) { 
 			var self   = fm ? fm : this,
+				xhr         = new XMLHttpRequest(),
+				notifyto    = null, notifyto2 = null,
+				dataChecked = data.checked,
+				isDataType  = (data.isDataType || data.type == 'data'),
+				retry = 0,
 				dfrd   = $.Deferred()
 					.fail(function(error) {
 						error && self.error(error);
 					})
 					.done(function(data) {
+						xhr = null;
+						files = null;
 						data.warning && self.error(data.warning);
 						data.removed && self.remove(data);
 						data.added   && self.add(data);
@@ -2324,24 +2331,31 @@ elFinder.prototype = {
 					})
 					.always(function() {
 						notifyto && clearTimeout(notifyto);
-						! data.checked && notify && self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
+						dataChecked && !data.multiupload && checkNotify() && self.notify({type : 'upload', cnt : -cnt, progress : 0, size : 0});
+						notifyto2 && clearTimeout(notifyto2);
+						chunkMerge && self.ui.notify.children('.elfinder-notify-chunkmerge').length && self.notify({type : 'chunkmerge', cnt : -1});
 					}),
-				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
-				isDataType  = (data.type == 'data'),
 				files       = data.input ? data.input.files : self.uploads.checkFile(data, self), 
 				cnt         = data.checked? (isDataType? files[0].length : files.length) : files.length,
-				loaded      = 5, prev,
+				loaded      = 0, prev,
+				filesize    = 0,
 				notify      = false,
-				startNotify = function() {
+				checkNotify = function() {
+					return notify = (notify || self.ui.notify.children('.elfinder-notify-upload').length);
+				},
+				startNotify = function(size) {
+					if (!size) size = filesize;
 					return setTimeout(function() {
 						notify = true;
-						self.notify({type : 'upload', cnt : cnt, progress : loaded*cnt});
+						self.notify({type : 'upload', cnt : cnt, progress : loaded - prev, size : size});
+						prev = loaded;
 					}, self.options.notifyDelay);
 				},
-				notifyto, notifyto2;
+				target = (data.target || self.cwd().hash),
+				chunkMerge = false;
 			
-			prev = loaded;
+			!chunkMerge && (prev = loaded);
 			
 			if (!isDataType && !cnt) {
 				return dfrd.reject(['errUploadNoFiles']);
@@ -2355,41 +2369,90 @@ elFinder.prototype = {
 				dfrd.reject(['errConnect', 'errAbort']);
 			}, false);
 			
-			xhr.addEventListener('load', function() {
-				var status = xhr.status, res;
+			xhr.addEventListener('load', function(e) {
+				var status = xhr.status, res, curr = 0, error = '';
 				
-				if (status > 500) {
-					return dfrd.reject('errResponse');
-				}
 				if (status != 200) {
-					return dfrd.reject('errConnect');
-				}
-				if (xhr.readyState != 4) {
-					return dfrd.reject(['errConnect', 'errTimeout']); // am i right?
-				}
-				if (!xhr.responseText) {
-					return dfrd.reject(['errResponse', 'errDataEmpty']);
-				}
-
-				if ((data.checked || notify) && prev == loaded) {
-					loaded = 100;
-					if (loaded - prev > 0) {
-						self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
+					if (status > 500) {
+						error = 'errResponse';
+					} else {
+						error = 'errConnect';
+					}
+				} else {
+					if (xhr.readyState != 4) {
+						error = ['errConnect', 'errTimeout']; // am i right?
+					}
+					if (!xhr.responseText) {
+						error = ['errResponse', 'errDataEmpty'];
 					}
 				}
 				
+				if (error) {
+					if (chunkMerge || retry++ > 3) {
+						var file = isDataType? files[0][0] : files[0];
+						if (file._cid) {
+							formData = new FormData();
+							files = [{_chunkfail: true}];
+							formData.append('chunk', file._chunk);
+							formData.append('cid'  , file._cid);
+							isDataType = false;
+							send(files);
+							return;
+						}
+						return dfrd.reject(error);
+					} else {
+						filesize = 0;
+						xhr.open('POST', self.uploadURL, true);
+						xhr.send(formData);
+						return;
+					}
+				}
+				
+				loaded = filesize;
+				
+				if (checkNotify() && (curr = loaded - prev)) {
+					self.notify({type : 'upload', cnt : 0, progress : curr, size : 0});
+				}
+
 				res = self.parseUploadData(xhr.responseText);
+				
+				// chunked upload commit
+				if (res._chunkmerged) {
+					formData = new FormData();
+					var _file = [{_chunkmerged: res._chunkmerged, _name: res._name}];
+					chunkMerge = true;
+					notifyto2 = setTimeout(function() {
+						self.notify({type : 'chunkmerge', cnt : 1});
+					}, self.options.notifyDelay);
+					isDataType? send(_file, files[1]) : send(_file);
+					return;
+				}
+				
 				res._multiupload = data.multiupload? true : false;
 				res.error ? dfrd.reject(res.error) : dfrd.resolve(res);
 			}, false);
 			
+			xhr.upload.addEventListener('loadstart', function(e) {
+				if (!chunkMerge && e.lengthComputable) {
+					loaded = e.loaded;
+					retry && (loaded = 0);
+					filesize = e.total;
+					if (!loaded) {
+						loaded = parseInt(filesize * 0.05);
+					}
+					if (checkNotify()) {
+						self.notify({type : 'upload', cnt : 0, progress : loaded - prev, size : data.multiupload? 0 : filesize});
+						prev = loaded;
+					}
+				}
+			}, false);
+			
 			xhr.upload.addEventListener('progress', function(e) {
 				var curr;
-				prev = loaded;
 
-				if (e.lengthComputable) {
+				if (e.lengthComputable && !chunkMerge) {
 					
-					curr = parseInt(e.loaded*100 / e.total);
+					loaded = e.loaded;
 
 					// to avoid strange bug in safari (not in chrome) with drag&drop.
 					// bug: macos finder opened in any folder,
@@ -2397,24 +2460,96 @@ elFinder.prototype = {
 					// drop file from finder
 					// on first attempt request starts (progress callback called ones) but never ends.
 					// any next drop - successfull.
-					if (!data.checked && curr > 0 && !notifyto) {
+					if (!data.checked && loaded > 0 && !notifyto) {
 						notifyto = startNotify();
 					}
 					
-					if (curr - prev > 4) {
-						loaded = curr;
-						(data.checked || notify) && self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
+					if (!filesize) {
+						retry && (loaded = 0);
+						filesize = e.total;
+						if (!loaded) {
+							loaded = parseInt(filesize * 0.05);
+						}
+					}
+					
+					curr = loaded - prev;
+					if (checkNotify() && (curr/e.total) >= 0.05) {
+						self.notify({type : 'upload', cnt : 0, progress : curr, size : 0});
+						prev = loaded;
 					}
 				}
 			}, false);
 			
 			var send = function(files, paths){
-				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt, maxFileSize;
-				if (! data.checked && (isDataType || data.type == 'files')) {
-					maxFileSize = fm.option('uploadMaxSize')? fm.option('uploadMaxSize') : fm.uplMaxSize;
+				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt, maxFileSize, totalSize = 0, chunked = [];
+				var chunkID = +new Date();
+				var BYTES_PER_CHUNK = fm.uplMaxSize - 8190; // margin 8kb
+				if (! dataChecked && (isDataType || data.type == 'files')) {
+					maxFileSize = fm.option('uploadMaxSize')? fm.option('uploadMaxSize') : 0;
 					for (var i=0; i < files.length; i++) {
 						if (maxFileSize && files[i].size >= maxFileSize) {
 							self.error(self.i18n('errUploadFile', files[i].name) + ' ' + self.i18n('errUploadFileSize'));
+							cnt--;
+							total--;
+							continue;
+						}
+						if (fm.uplMaxSize && files[i].size >= fm.uplMaxSize) {
+							var SIZE = files[i].size;
+
+							var start = 0;
+							var end = BYTES_PER_CHUNK;
+
+							var chunks = -1;
+							var blob = files[i];
+							var total = Math.floor(SIZE / BYTES_PER_CHUNK);
+
+							totalSize += SIZE;
+							chunked[chunkID] = 0;
+							while(start < SIZE) {
+								var chunk;
+								if ('slice' in blob) {
+									chunk = blob.slice(start, end);
+								} else if ('mozSlice' in blob) {
+									chunk = blob.mozSlice(start, end);
+								} else if ('webkitSlice' in blob) {
+									chunk = blob.webkitSlice(start, end);
+								} else {
+									chunk = null;
+									break;
+								}
+								chunk._chunk = blob.name + '.' + ++chunks + '_' + total + '.part';
+								chunk._cid   = chunkID;
+								chunked[chunkID]++;
+								
+								if (size) {
+									c++;
+								}
+								if (typeof sfiles[c] == 'undefined') {
+									sfiles[c] = [];
+									if (isDataType) {
+										sfiles[c][0] = [];
+										sfiles[c][1] = [];
+									}
+								}
+								size = fm.uplMaxSize;
+								fcnt = 1;
+								if (isDataType) {
+									sfiles[c][0].push(chunk);
+									sfiles[c][1].push(paths[i]);
+								} else {
+									sfiles[c].push(chunk);
+								}
+
+								start = end;
+								end = start + BYTES_PER_CHUNK;
+							}
+							if (chunk == null) {
+								self.error(self.i18n('errUploadFile', files[i].name) + ' ' + self.i18n('errUploadFileSize'));
+								cnt--;
+								total--;
+							} else {
+								total += chunks;
+							}
 							continue;
 						}
 						if ((fm.uplMaxSize && size + files[i].size >= fm.uplMaxSize) || fcnt > fm.uplMaxFile) {
@@ -2436,6 +2571,7 @@ elFinder.prototype = {
 							sfiles[c].push(files[i]);
 						}
 						size += files[i].size;
+						totalSize += files[i].size;
 						fcnt++;
 					}
 					
@@ -2445,20 +2581,52 @@ elFinder.prototype = {
 					}
 					
 					if (sfiles.length > 1) {
-						if (isDataType) notifyto = startNotify();
-						var added = [];
-						for (var i=0; i < sfiles.length; i++) {
-							fm.exec('upload', {type: data.type, files: sfiles[i], checked: true, multiupload: true}).always(function(e) {
-								if (e.added) added = $.merge(added, e.added);
-								added && fm.trigger('multiupload', {added: added});
-								total -= (isDataType? this[0] : this).length;
-								if (notify && total < 1) {
-									notifyto && clearTimeout(notifyto);
-									self.notify({type : 'upload', cnt : -cnt});
+						notifyto = startNotify(totalSize);
+						var added = [],
+							done = 0,
+							last = sfiles.length,
+							failChunk = [],
+							multi = function(files, num){
+								var sfiles = [];
+								while(files.length && sfiles.length < num) {
+									sfiles.push(files.shift());
 								}
-							}.bind(sfiles[i]));
-						}
-						return false;
+								if (sfiles.length) {
+									for (var i=0; i < sfiles.length; i++) {
+										var cid = isDataType? (sfiles[i][0][0]._cid || null) : (sfiles[i][0]._cid || null);
+										if (!!failChunk[cid]) {
+											last--;
+											continue;
+										}
+										fm.exec('upload', {
+											type: data.type,
+											isDataType: isDataType,
+											files: sfiles[i],
+											checked: true,
+											target: target,
+											multiupload: true})
+										.fail(function(error) {
+											if (cid) {	
+												failChunk[cid] = true;
+											}
+											error && self.error(error);
+										})
+										.always(function(e) {
+											if (e.added) added = $.merge(added, e.added);
+											if (last <= ++done) {
+												fm.trigger('multiupload', {added: added});
+												notifyto && clearTimeout(notifyto);
+												if (checkNotify()) {
+													self.notify({type : 'upload', cnt : -cnt, progress : 0, size : 0});
+												}
+											}
+											multi(files, 1); // Next one
+										});
+									}
+								}
+							};
+						multi(sfiles, 3); // Max connection: 3
+						return true;
 					}
 					
 					if (isDataType) {
@@ -2468,6 +2636,12 @@ elFinder.prototype = {
 						files = sfiles[0];
 					}
 				}
+				
+				if (!dataChecked && (!fm.UA.Safari || !data.files)) {
+					notifyto = startNotify();
+				}
+				
+				dataChecked = true;
 				
 				if (! files.length) {
 					dfrd.reject(['errUploadNoFiles']);
@@ -2492,7 +2666,7 @@ elFinder.prototype = {
 				}
 
 				formData.append('cmd', 'upload');
-				formData.append(self.newAPI ? 'target' : 'current', self.cwd().hash);
+				formData.append(self.newAPI ? 'target' : 'current', target);
 				$.each(self.options.customData, function(key, val) {
 					formData.append(key, val);
 				});
@@ -2501,7 +2675,21 @@ elFinder.prototype = {
 				});
 				
 				$.each(files, function(i, file) {
-					formData.append('upload[]', file);
+					if (file._chunkmerged) {
+						formData.append('chunk', file._chunkmerged);
+						formData.append('upload[]', file._name);
+					} else {
+						if (file._chunkfail) {
+							formData.append('upload[]', 'chunkfail');
+							formData.append('mimes', 'chunkfail');
+						} else {
+							formData.append('upload[]', file);
+						}
+						if (file._chunk) {
+							formData.append('chunk', file._chunk);
+							formData.append('cid'  , file._cid);
+						}
+					}
 				});
 				
 				if (isDataType) {
@@ -2510,13 +2698,14 @@ elFinder.prototype = {
 					});
 				}
 				
+				
 				xhr.onreadystatechange = function() {
 					if (xhr.readyState == 4 && xhr.status == 0) {
 						// ff bug while send zero sized file
 						// for safari - send directory
 						dfrd.reject(['errConnect', 'errAbort']);
 					}
-				}
+				};
 				
 				xhr.send(formData);
 				
@@ -2528,7 +2717,7 @@ elFinder.prototype = {
 					dfrd.reject();
 				}
 			} else {
-				if (!! data.checked) {
+				if (dataChecked) {
 					send(files[0], files[1]);
 				} else {
 					notifyto2 = setTimeout(function() {
@@ -2549,10 +2738,6 @@ elFinder.prototype = {
 				}
 			}
 
-			if (!isDataType && !data.checked && (!this.UA.Safari || !data.files)) {
-				notifyto = startNotify();
-			}
-			
 			return dfrd;
 		}
 	},
@@ -2588,7 +2773,6 @@ elFinder.prototype = {
 		key = 'elfinder-'+key+this.id;
 		
 		if (val === null) {
-			console.log('remove', key)
 			return s.removeItem(key);
 		}
 		
@@ -2821,7 +3005,8 @@ elFinder.prototype = {
 			notify   = ndialog.children('.elfinder-notify-'+type),
 			ntpl     = '<div class="elfinder-notify elfinder-notify-{type}"><span class="elfinder-dialog-icon elfinder-dialog-icon-{type}"/><span class="elfinder-notify-msg">{msg}</span> <span class="elfinder-notify-cnt"/><div class="elfinder-notify-progressbar"><div class="elfinder-notify-progress"/></div></div>',
 			delta    = opts.cnt,
-			progress = opts.progress >= 0 ? opts.progress : 0,
+			size     = (typeof opts.size != 'undefined')? parseInt(opts.size) : null,
+			progress = (typeof opts.progress != 'undefined' && opts.progress >= 0) ? opts.progress : null,
 			cnt, total, prc;
 
 		if (!type) {
@@ -2833,7 +3018,7 @@ elFinder.prototype = {
 				.appendTo(ndialog)
 				.data('cnt', 0);
 
-			if (progress) {
+			if (progress != null) {
 				notify.data({progress : 0, total : 0});
 			}
 		}
@@ -2845,16 +3030,21 @@ elFinder.prototype = {
 			ndialog.is(':hidden') && ndialog.elfinderdialog('open');
 			notify.data('cnt', cnt);
 			
-			if (progress
+			if ((progress != null)
 			&& (total = notify.data('total')) >= 0
 			&& (prc = notify.data('progress')) >= 0) {
 
-				total    = delta + parseInt(notify.data('total'));
-				prc      = progress + prc;
-				progress = parseInt(prc/total);
+				total += size != null? size : delta;
+				prc   += progress;
+				(size == null && delta < 0) && (prc += delta * 100);
 				notify.data({progress : prc, total : total});
+				if (size != null) {
+					prc *= 100;
+					total = Math.max(1, total);
+				}
+				progress = parseInt(prc/total);
 				
-				ndialog.find('.elfinder-notify-progress')
+				notify.find('.elfinder-notify-progress')
 					.animate({
 						width : (progress < 100 ? progress : 100)+'%'
 					}, 20);
@@ -3266,7 +3456,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1 (Nightly: bf0193b)';
+elFinder.prototype.version = '2.1 (Nightly: d373a0a)';
 
 
 
@@ -4490,7 +4680,7 @@ $.fn.dialogelfinder = function(opts) {
 				}
 			});
 
-			node.zIndex(zindex).css(pos).show().trigger('resize')
+			node.zIndex(zindex).css(pos).show().trigger('resize');
 
 			setTimeout(function() {
 				// fix resize icon position and make elfinder active
@@ -4510,7 +4700,7 @@ $.fn.dialogelfinder = function(opts) {
 	}
 
 	return this;
-}
+};
 
 
 
@@ -4991,9 +5181,10 @@ $.fn.elfindercontextmenu = function(fm) {
 					wheight    = win.height(),
 					scrolltop  = win.scrollTop(),
 					scrollleft = win.scrollLeft(),
+					m          = fm.UA.Touch? 10 : 0,
 					css        = {
-						top  : (y + height < wheight ? y : y - height > 0 ? y - height : y) + scrolltop,
-						left : (x + width  < wwidth  ? x : x - width) + scrollleft,
+						top  : (y + m + height < wheight ? y + m : y - m - height > 0 ? y - m - height : y + m) + scrolltop,
+						left : (x + m + width  < wwidth  ? x + m : x - m - width) + scrollleft,
 						'z-index' : 100 + fm.getUI('workzone').zIndex()
 					};
 
@@ -5802,6 +5993,11 @@ $.fn.elfindercwd = function(fm, options) {
 						nl   = next.length,
 						sib;
 
+					if (cwd.data('longtap')) {
+						e.stopPropagation();
+						return;
+					}
+
 					e.stopImmediatePropagation();
 
 					if (e.shiftKey && (pl || nl)) {
@@ -5810,10 +6006,11 @@ $.fn.elfindercwd = function(fm, options) {
 					} else if (e.ctrlKey || e.metaKey) {
 						p.trigger(p.is('.'+clSelected) ? evtUnselect : evtSelect);
 					} else {
-						if ($(this).data('touching') && p.is('.'+clSelected)) {
-							$(this).data('touching', null);
+						if (p.data('touching') && p.is('.'+clSelected)) {
+							p.data('touching', null);
 							fm.dblclick({file : this.id});
 							unselectAll();
+							return;
 						} else {
 							unselectAll();
 							p.trigger(evtSelect);
@@ -5829,12 +6026,14 @@ $.fn.elfindercwd = function(fm, options) {
 				// for touch device
 				.delegate(fileSelector, 'touchstart.'+fm.namespace, function(e) {
 					e.stopPropagation();
-					$(this).data('touching', true);
 					var p = this.id ? $(this) : $(this).parents('[id]:first'),
 					  sel = p.prevAll('.'+clSelected+':first').length +
 					        p.nextAll('.'+clSelected+':first').length;
-					$(this).data('longtap', setTimeout(function(){
+					cwd.data('longtap', null);
+					p.data('touching', true);
+					p.data('tmlongtap', setTimeout(function(){
 						// long tap
+						cwd.data('longtap', true);
 						if (p.is('.'+clSelected) && sel > 0) {
 							p.trigger(evtUnselect);
 							trigger();
@@ -5851,8 +6050,9 @@ $.fn.elfindercwd = function(fm, options) {
 					}, 500));
 				})
 				.delegate(fileSelector, 'touchmove.'+fm.namespace+' touchend.'+fm.namespace, function(e) {
+					var p = this.id ? $(this) : $(this).parents('[id]:first');
 					e.stopPropagation();
-					clearTimeout($(this).data('longtap'));
+					clearTimeout(p.data('tmlongtap'));
 				})
 				// attach draggable
 				.delegate(fileSelector, 'mouseenter.'+fm.namespace, function(e) {
@@ -5943,6 +6143,10 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				// unselect all on cwd click
 				.bind('click.'+fm.namespace, function(e) {
+					if (cwd.data('longtap')) {
+						e.stopPropagation();
+						return;
+					}
 					!e.shiftKey && !e.ctrlKey && !e.metaKey && unselectAll();
 				})
 				
@@ -5991,9 +6195,12 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				// for touch device
 				.bind('touchstart.'+fm.namespace, function(e) {
-					$(this).data('touching', true);
-					$(this).data('longtap', setTimeout(function(){
+					var p = $(this);
+					cwd.data('longtap', null);
+					p.data('touching', true);
+					p.data('tmlongtap', setTimeout(function(){
 						// long tap
+						cwd.data('longtap', true);
 						fm.trigger('contextmenu', {
 							'type'    : 'cwd',
 							'targets' : [fm.cwd().hash],
@@ -6002,8 +6209,8 @@ $.fn.elfindercwd = function(fm, options) {
 						});
 					}, 500));
 				})
-				.bind('touchmove '+fm.namespace+' touchend.'+fm.namespace, function(e) {
-					clearTimeout($(this).data('longtap'));
+				.bind('touchmove.'+fm.namespace+' touchend.'+fm.namespace, function(e) {
+					clearTimeout($(this).data('tmlongtap'));
 				}),
 			
 			resize = function() {
@@ -6021,7 +6228,9 @@ $.fn.elfindercwd = function(fm, options) {
 			// workzone node
 			wz = parent.children('.elfinder-workzone').append(wrapper.append(this))
 			;
-			
+		
+		// for iOS5 bug
+		$('body').on('touchstart touchmove touchend', function(e){});
 		
 		if (fm.dragUpload) {
 			wrapper[0].addEventListener('dragenter', function(e) {
@@ -6161,7 +6370,7 @@ $.fn.elfindercwd = function(fm, options) {
 				trigger();
 			})
 			// select new files after some actions
-			.bind('mkdir mkfile duplicate upload rename archive extract multiupload', function(e) {
+			.bind('mkdir mkfile duplicate upload rename archive extract paste multiupload', function(e) {
 				if (e.type == 'upload' && e.data._multiupload) return;
 				var phash = fm.cwd().hash, files;
 				
@@ -8087,7 +8296,7 @@ elFinder.prototype.commands.download = function() {
 	var self   = this,
 		fm     = this.fm,
 		filter = function(hashes) {
-			return $.map(self.files(hashes), function(f) { return f.mime == 'directory' ? null : f });
+			return $.map(self.files(hashes), function(f) { return f.mime == 'directory' ? null : f; });
 		};
 	
 	this.shortcuts = [{
@@ -8098,8 +8307,8 @@ elFinder.prototype.commands.download = function() {
 		var sel = this.fm.selected(),
 			cnt = sel.length;
 		
-		return  !this._disabled && !this.fm.UA.Mobile && cnt && (!fm.UA.IE || cnt == 1) && cnt == filter(sel).length ? 0 : -1;
-	}
+		return  !this._disabled && cnt && ((!fm.UA.IE && !fm.UA.Mobile) || cnt == 1) && cnt == filter(sel).length ? 0 : -1;
+	};
 	
 	this.exec = function(hashes) {
 		var fm      = this.fm,
@@ -8126,11 +8335,22 @@ elFinder.prototype.commands.download = function() {
 		
 		base += base.indexOf('?') === -1 ? '?' : '&';
 		
+		var url;
 		for (i = 0; i < files.length; i++) {
-			iframes += '<iframe class="downloader" id="downloader-' + files[i].hash+'" style="display:none" src="'+base + 'cmd=file&target=' + files[i].hash+'&download=1'+cdata+'"/>';
+			url = base + 'cmd=file&target=' + files[i].hash+'&download=1'+cdata;
+			if (fm.UA.Mobile) {
+				setTimeout(function(){
+					if (! window.open(url)) {
+						fm.error('errPopup');
+					}
+				}, 100);
+			} else {
+				iframes += '<iframe class="downloader" id="downloader-' + files[i].hash+'" style="display:none" src="'+url+'"/>';
+			}
 		}
 		$(iframes)
 			.appendTo('body')
+			.attr('src', this.attr('src'))
 			.ready(function() {
 				setTimeout(function() {
 					$(iframes).each(function() {
@@ -8140,9 +8360,9 @@ elFinder.prototype.commands.download = function() {
 			});
 		fm.trigger('download', {files : files});
 		return dfrd.resolve(hashes);
-	}
+	};
 
-}
+};
 
 /*
  * File: /home/osc/elFinder-build/elFinder/js/commands/duplicate.js
@@ -11857,9 +12077,10 @@ elFinder.prototype.commands.upload = function() {
 		};
 		
 		if (data) {
-			if (data.input || data.files)
+			if (data.input || data.files) {
+				data.type = 'files';
 				return fm.upload(data);
-			else if (data.dropEvt) {
+			} else if (data.dropEvt) {
 				return dropUpload(data.dropEvt);
 			}
 		}
