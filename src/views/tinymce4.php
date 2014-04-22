@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,9 +5,9 @@
     <title>elFinder 2.0</title>
 
     <!-- jQuery and jQuery UI (REQUIRED) -->
-    <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/smoothness/jquery-ui.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
     <!-- elFinder CSS (REQUIRED) -->
     <link rel="stylesheet" type="text/css" href="<?= asset($dir.'/css/elfinder.min.css') ?>">
@@ -21,8 +20,8 @@
         <!-- elFinder translation (OPTIONAL) -->
         <script src="<?= asset($dir."/js/i18n/elfinder.$locale.js") ?>"></script>
     <?php } ?>
-    <!-- Include jQuery, jQuery UI, elFinder (REQUIRED) -->
-
+    
+    <!-- elFinder initialization (REQUIRED) -->
     <script type="text/javascript">
         var FileBrowserDialogue = {
             init: function() {
@@ -40,7 +39,9 @@
         $().ready(function() {
             var elf = $('#elfinder').elfinder({
                 // set your elFinder options here
-                <?php if($locale){ echo "lang: '$locale',\n"; } ?>
+                <?php if($locale){ ?>
+                    lang: '<?= $locale ?>', // locale
+                <?php } ?>
                 url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
                 getFileCallback: function(file) { // editor callback
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
@@ -48,14 +49,9 @@
             }).elfinder('instance');
         });
     </script>
-
-
-
 </head>
 <body>
-
-<!-- Element where elFinder will be created (REQUIRED) -->
-<div id="elfinder"></div>
-
+    <!-- Element where elFinder will be created (REQUIRED) -->
+    <div id="elfinder"></div>
 </body>
 </html>
