@@ -41,7 +41,7 @@
                 <?php } ?>
                 url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
                 getFileCallback : function(file) {
-                    window.opener.CKEDITOR.tools.callFunction(funcNum, file);
+                    window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
                     window.close();
                 }
             }).elfinder('instance');
