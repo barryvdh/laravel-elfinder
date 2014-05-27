@@ -9,6 +9,9 @@ Files are updated from the [2.1 nightly builds by nao-pon]( https://github.com/n
 ### Installation
 
 Add this package to your composer.json and run composer update.
+    
+    "barryvdh/laravel-elfinder": "0.1.x",
+    
 Add the ServiceProvider to the providers array in app/config/app.php
 
     'Barryvdh\Elfinder\ElfinderServiceProvider'
