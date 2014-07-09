@@ -4,7 +4,7 @@ namespace Barryvdh\Elfinder;
 use Config;
 use View;
 
-class ElfinderController extends \BaseController
+class ElfinderController extends \Controller
 {
     protected $package = 'laravel-elfinder';
 
