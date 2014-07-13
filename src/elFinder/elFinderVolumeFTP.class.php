@@ -63,6 +63,13 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	protected $tmp = '';
 	
 	/**
+	 * Net mount key
+	 *
+	 * @var string
+	 **/
+	public $netMountKey = '';
+	
+	/**
 	 * Constructor
 	 * Extend options with required fields
 	 *
@@ -83,7 +90,9 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 			'tmbPath'       => '',
 			'tmpPath'       => '',
 			'dirMode'       => 0755,
-			'fileMode'      => 0644
+			'fileMode'      => 0644,
+			'icon'          => (defined('ELFINDER_IMG_PARENT_URL')? (rtrim(ELFINDER_IMG_PARENT_URL, '/').'/') : '').'img/volume_icon_ftp.png'
+			
 		);
 		$this->options = array_merge($this->options, $opts); 
 		$this->options['mimeDetect'] = 'internal';
@@ -109,6 +118,9 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 			return $this->setError('Required options undefined.');
 		}
 		
+		// make ney mount key
+		$this->netMountKey = md5(join('-', array('ftp', $this->options['host'], $this->options['port'], $this->options['path'], $this->options['user'])));
+
 		if (!function_exists('ftp_connect')) {
 			return $this->setError('FTP extension not loaded.');
 		}
@@ -131,7 +143,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 
 		$this->rootName = $this->options['alias'];
 		$this->options['separator'] = '/';
-
+		
 		return $this->connect();
 		
 	}

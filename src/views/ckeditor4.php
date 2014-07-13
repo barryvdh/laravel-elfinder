@@ -22,29 +22,27 @@
     <?php } ?>
     
     <!-- elFinder initialization (REQUIRED) -->
-    <script type="text/javascript">
-        var FileBrowserDialogue = {
-            init: function() {
-                // Here goes your code for setting your custom things onLoad.
-            },
-            mySubmit: function (URL) {
-                // pass selected file path to TinyMCE
-                top.tinymce.activeEditor.windowManager.getParams().setUrl(URL);
+    <script type="text/javascript" charset="utf-8">
+        // Helper function to get parameters from the query string.
+        function getUrlParam(paramName) {
+            var reParam = new RegExp('(?:[\?&]|&amp;)' + paramName + '=([^&]+)', 'i') ;
+            var match = window.location.search.match(reParam) ;
 
-                // close popup window
-                top.tinymce.activeEditor.windowManager.close();
-            }
+            return (match && match.length > 1) ? match[1] : '' ;
         }
 
         $().ready(function() {
+            var funcNum = getUrlParam('CKEditorFuncNum');
+
             var elf = $('#elfinder').elfinder({
                 // set your elFinder options here
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
                 url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
-                getFileCallback: function(file) { // editor callback
-                    FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
+                getFileCallback : function(file) {
+                    window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
+                    window.close();
                 }
             }).elfinder('instance');
         });
