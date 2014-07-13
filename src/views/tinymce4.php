@@ -42,6 +42,9 @@
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
+                <?php if($csrf){ ?>
+                customData: { _token:  '<?php echo csrf_token(); ?>' },
+                <?php } ?>
                 url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
                 getFileCallback: function(file) { // editor callback
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
