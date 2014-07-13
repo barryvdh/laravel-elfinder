@@ -116,3 +116,42 @@ In the CKeditor config file:
 ```javascript
 config.filebrowserBrowseUrl = '/elfinder/ckeditor4';
 ```
+
+### Standalone Popup Selector
+
+To use elFinder by using a href, button or other element to trigger a popup window, you will need to do the following.
+
+Add support for a popup window, we have used [Jacklmoore's jQuery colorbox](http://www.jacklmoore.com/colorbox/), (Not included), but you could use any other, obviously adjusting the following instructions accordingly.
+
+#### Add required routes
+
+First, Add the following route to your routes file, ensuring it is protected by your chosen Auth filter solution.
+
+```Route::get('elfinder/standalonepopup/{input_id}', 'Barryvdh\Elfinder\ElfinderController@showPopup');```
+
+#### Add the required resources
+
+Be Sure that you have published this packages public assets as described above. Then within the <head> section of your page include the required colorbox styles (we suggest example1' styles, but any will do)
+
+```<link href="/assets/css/colorbox.css" rel="stylesheet">```
+
+Colorbox depends on jQuery, so ensure that you have it included within your page, then somewhere after your jQuery file has been included, add the script for jQuery Colorbox, such as...
+
+```<script type="text/javascript" src="/assets/js/jquery.colorbox-min.js"></script>```
+
+Now add a link to the popup script, just before the close of your <body> tag. A non-minified version is also provided, for if you wish to modify the colorbox config. Simply copy to your assets location, and adjust/minify as desired.
+
+```<script type="text/javascript" src="/packages/barryvdh/laravel-elfinder/js/standalonepopup.min.js"></script>```
+
+#### Usage
+
+In order to use the finder to populate an input, simply add your input that you wish to be populated, ensuring to use an ID (This will be used to update the value once a file/image has been selected)......
+
+    <label for="feature_image">Feature Image</label>
+    <input type="text" id="feature_image" name="feature_image" value=""/>
+
+Now just add the element that you wish to use to trigger the popup, ensuring to add the class ```popup_selector``` and the ```data-inputid``` atribute containing the value matching the id of your input you wish to be populated, as below.
+
+    <a href="" class="popup_selector" data-inputid="feature_image">Select Image</a>
+
+You can have as many elements as you wish on the page, just be sure to provide each with a unique ID, and set the data-updateid attribute on the selector accordingly.

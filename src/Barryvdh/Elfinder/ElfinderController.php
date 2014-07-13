@@ -82,4 +82,16 @@ class ElfinderController extends \Controller
         $connector = new \elFinderConnector(new \elFinder($opts));
         $connector->run();
     }
+
+    public function showPopup($input_id)
+    {
+        $dir = 'packages/barryvdh/' . $this->package;
+        $locale = \Config::get('app.locale');
+        if ( ! file_exists(public_path() . "/$dir/js/i18n/elfinder.$locale.js"))
+        {
+            $locale = false;
+        }
+
+        return \View::make($this->package . '::standalonepopup')->with(compact('dir', 'locale', 'input_id'));
+    }
 }
