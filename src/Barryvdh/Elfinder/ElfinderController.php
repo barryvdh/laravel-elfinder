@@ -1,8 +1,9 @@
 <?php
 namespace Barryvdh\Elfinder;
 
-use Config;
-use View;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Response;
 
 class ElfinderController extends \Controller
 {
@@ -80,7 +81,9 @@ class ElfinderController extends \Controller
 
         // run elFinder
         $connector = new \elFinderConnector(new \elFinder($opts));
-        $connector->run();
+        return Response::stream(function () use($connector) {
+                $connector->run();
+            });
     }
 
     public function showPopup($input_id)
