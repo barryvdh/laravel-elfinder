@@ -1,4 +1,4 @@
-$('document').on('click','.popup_selector',function (event) {
+$(document).on('click','.popup_selector',function (event) {
     event.preventDefault();
     var updateID = $(this).attr('data-inputid'); // Btn id clicked
     var elfinderUrl = '/elfinder/standalonepopup/';
