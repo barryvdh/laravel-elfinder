@@ -73,11 +73,10 @@ class ElfinderController extends \Controller
             );
         }
 
-        // Documentation for connector options:
-        // https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options
-        $opts = array(
+        $opts = Config::get($this->package . '::options', array());
+        $opts = array_merge(array(
             'roots' => $roots
-        );
+        ), $opts);
 
         // run elFinder
         $connector = new \elFinderConnector(new \elFinder($opts));

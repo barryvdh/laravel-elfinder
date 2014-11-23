@@ -38,6 +38,18 @@ return array(
     
     /*
     |--------------------------------------------------------------------------
+    | Options
+    |--------------------------------------------------------------------------
+    |
+    | These options are merged, together with 'roots' and passed to the Connector.
+    | See https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options-2.1
+    |
+    */
+
+    'options' => array(),
+    
+    /*
+    |--------------------------------------------------------------------------
     | CSRF
     |--------------------------------------------------------------------------
     |
