@@ -895,8 +895,8 @@ abstract class elFinderVolumeDriver {
 			'archivers'     => array(
 				// 'create'  => array_keys($this->archivers['create']),
 				// 'extract' => array_keys($this->archivers['extract']),
-				'create'  => is_array($this->archivers['create'])  ? array_keys($this->archivers['create'])  : array(),
-				'extract' => is_array($this->archivers['extract']) ? array_keys($this->archivers['extract']) : array()
+				'create'  => (!empty($this->archivers['create']) && is_array($this->archivers['create']))  ? array_keys($this->archivers['create'])  : array(),
+				'extract' => (!empty($this->archivers['extract']) && is_array($this->archivers['extract'])) ? array_keys($this->archivers['extract']) : array()
 			)
 		);
 	}
