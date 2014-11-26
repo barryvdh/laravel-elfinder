@@ -4,7 +4,7 @@ This packages integrates [elFinder 2.1](https://github.com/Studio-42/elFinder/tr
 by making the php files available with Composer (+autoloading) and the assets with a publish command. It also provides some example views for standalone, tinymce and ckeditor.
 Files are updated from the [2.1 nightly builds by nao-pon]( https://github.com/nao-pon/elFinder-nightly) 
 
-### Note: Use `php artisan elfinder:publish` instead of the old publish command, for future changes!
+> Note: Use `php artisan elfinder:publish` instead of the old publish command, for future changes!
 
 ### Installation
 
