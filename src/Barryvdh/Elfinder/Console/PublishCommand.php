@@ -1,6 +1,5 @@
 <?php
 namespace Barryvdh\Elfinder\Console;
-use Illuminate\Foundation\AssetPublisher;
 use Illuminate\Console\Command;
 
 /**
@@ -36,7 +35,7 @@ class PublishCommand extends Command {
      *
      * @param \Illuminate\Foundation\AssetPublisher $assets
      */
-    public function __construct(AssetPublisher $assets)
+    public function __construct($assets)
     {
         parent::__construct();
 
