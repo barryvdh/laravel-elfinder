@@ -290,7 +290,7 @@ class elFinder {
 			}
 		}
 
-		// if at least one redable volume - ii desu >_<
+		// if at least one readable volume - ii desu >_<
 		$this->loaded = !empty($this->default);
 	}
 	
@@ -863,7 +863,7 @@ class elFinder {
 
 		if ($download) {
 			$disp = 'attachment';
-			$mime = 'application/octet-stream';
+			$mime = 'application/force-download';
 		} else {
 			$disp  = preg_match('/^(image|text)/i', $file['mime']) || $file['mime'] == 'application/x-shockwave-flash' 
 					? 'inline' 

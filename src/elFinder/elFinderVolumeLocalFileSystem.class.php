@@ -298,9 +298,9 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 			$stat['target'] = $target;
 			$path  = $target;
 			$lstat = lstat($path);
-			$size  = $lstat['size'];
+			$size  = sprintf('%u', $lstat['size']);
 		} else {
-			$size = @filesize($path);
+			$size = sprintf('%u', @filesize($path));
 		}
 		
 		$dir = is_dir($path);
@@ -539,14 +539,10 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	protected function _save($fp, $dir, $name, $stat) {
 		$path = $dir.DIRECTORY_SEPARATOR.$name;
 
-		if (!($target = @fopen($path, 'wb'))) {
+		if (@file_put_contents($path, $fp, LOCK_EX) === false) {
 			return false;
 		}
 
-		while (!feof($fp)) {
-			fwrite($target, fread($fp, 8192));
-		}
-		fclose($target);
 		@chmod($path, $this->options['fileMode']);
 		clearstatcache();
 		return $path;
@@ -629,13 +625,13 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 					if (is_dir($p) && $this->_findSymlinks($p)) {
 						return true;
 					} elseif (is_file($p)) {
-						$this->archiveSize += filesize($p);
+						$this->archiveSize += sprintf('%u', filesize($p));
 					}
 				}
 			}
 		} else {
 			
-			$this->archiveSize += filesize($path);
+			$this->archiveSize += sprintf('%u', filesize($path));
 		}
 		
 		return false;

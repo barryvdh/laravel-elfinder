@@ -895,8 +895,8 @@ abstract class elFinderVolumeDriver {
 			'archivers'     => array(
 				// 'create'  => array_keys($this->archivers['create']),
 				// 'extract' => array_keys($this->archivers['extract']),
-				'create'  => is_array($this->archivers['create'])  ? array_keys($this->archivers['create'])  : array(),
-				'extract' => is_array($this->archivers['extract']) ? array_keys($this->archivers['extract']) : array()
+				'create'  => isset($this->archivers['create']) && is_array($this->archivers['create'])  ? array_keys($this->archivers['create'])  : array(),
+				'extract' => isset($this->archivers['extract']) && is_array($this->archivers['extract']) ? array_keys($this->archivers['extract']) : array()
 			)
 		);
 	}
@@ -1426,7 +1426,8 @@ abstract class elFinderVolumeDriver {
 			return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME);
 		}
 
-		if ($this->uploadMaxSize > 0 && filesize($tmpname) > $this->uploadMaxSize) {
+		$tmpsize = sprintf('%u', filesize($tmpname));
+		if ($this->uploadMaxSize > 0 && $tmpsize > $this->uploadMaxSize) {
 			return $this->setError(elFinder::ERROR_UPLOAD_FILE_SIZE);
 		}
 
@@ -1453,7 +1454,7 @@ abstract class elFinderVolumeDriver {
 			'mime'   => $mime, 
 			'width'  => 0, 
 			'height' => 0, 
-			'size'   => filesize($tmpname));
+			'size'   => $tmpsize);
 		
 		// $w = $h = 0;
 		if (strpos($mime, 'image') === 0 && ($s = getimagesize($tmpname))) {
@@ -3314,18 +3315,19 @@ abstract class elFinderVolumeDriver {
 	 * @return array
 	 */
 	protected function getArchivers($use_cache = true) {
+
+		$arcs = array(
+				'create'  => array(),
+				'extract' => array()
+		);
+
 		if (!function_exists('proc_open')) {
-			return array();
+			return $arcs;
 		}
 		
 		if ($use_cache && isset($_SESSION['ELFINDER_ARCHIVERS_CACHE']) && is_array($_SESSION['ELFINDER_ARCHIVERS_CACHE'])) {
 			return $_SESSION['ELFINDER_ARCHIVERS_CACHE'];
 		}
-		
-		$arcs = array(
-				'create'  => array(),
-				'extract' => array()
-		);
 		
 		$this->procExec('tar --version', $o, $ctar);
 		
