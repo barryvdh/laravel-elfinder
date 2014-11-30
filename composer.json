@@ -31,9 +31,6 @@
         "nao-pon/elFinder-nightly": "2.1.x"
     },
     "autoload": {
-        "classmap": [
-            "src/elFinder"
-        ],
         "psr-4": {
             "Barryvdh\\Elfinder\\": "src/"
         }
