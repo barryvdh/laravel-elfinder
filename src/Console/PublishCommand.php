@@ -100,8 +100,7 @@ class PublishCommand extends Command {
     }
 
     /**
-     * Get the path of the assets folder. For now it's just vendor/barryvdh/laravel-elfinder/public,
-     * but in the future could reference to a different composer package.
+     *  Get the path of the public folder, to merge with the elFinder folders.
      */
     protected function getPath(){
         $path = with(new \ReflectionClass($this))->getFileName();
@@ -109,7 +108,7 @@ class PublishCommand extends Command {
     }
 
     /**
-     * Find the elFinder path
+     * Find the elFinder path from the vendor dir.
      *
      * @return string
      */

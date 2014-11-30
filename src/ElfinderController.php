@@ -1,121 +1,97 @@
-<?php
-namespace Barryvdh\Elfinder\Console;
+<?php namespace Barryvdh\Elfinder;
 
-use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
+use Barryvdh\Elfinder\Support\BaseController;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-/**
- * Publish the elFinder assets to the public directory
- *
- * @author Barry vd. Heuvel <barryvdh@gmail.com>
- */
-class PublishCommand extends Command {
+class ElfinderController extends BaseController
+{
+    protected $package = 'laravel-elfinder';
 
-    /**
-     * The console command name.
-     *
-     * @var string
-     */
-    protected $name = 'elfinder:publish';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Publish the elFinder assets';
-
-    /** @var Filesystem $fs */
-    protected $files;
-
-    protected $publishPath;
-
-    /**
-     * Create a new Publish command
-     *
-     * @param \Illuminate\Filesystem\Filesystem $files
-     * @param string $publishPath
-     */
-    public function __construct($files, $publishPath)
+    public function showIndex()
     {
-        parent::__construct();
-
-        $this->files = $files;
-        $this->publishPath = $publishPath;
+        $dir = 'packages/barryvdh/' . $this->package;
+        $locale = $this->app->config->get('app.locale');
+        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
+        {
+            $locale = false;
+        }
+        return $this->app['view']->make($this->package . '::elfinder')->with(compact('dir', 'locale'));
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
-    public function fire()
+    public function showTinyMCE()
     {
+        $dir = 'packages/barryvdh/' . $this->package;
+        $locale = $this->app->config->get('app.locale');
+        
+        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
+        {
+            $locale = false;
+        }
+        return $this->app['view']->make($this->package . '::tinymce')->with(compact('dir', 'locale'));
+    }
 
-        $package = 'barryvdh/laravel-elfinder';
-        $destination = $this->publishPath . "/packages/{$package}";
+    public function showTinyMCE4()
+    {
+        $dir = 'packages/barryvdh/' . $this->package;
+        $locale = $this->app->config->get('app.locale');
+        $csrf = $this->app->config->get($this->package . '::csrf');
+        
+        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
+        {
+            $locale = false;
+        }
+        return $this->app['view']->make($this->package . '::tinymce4')->with(compact('dir', 'locale','csrf'));
+    }
 
-        if ( ! is_null($path = $this->getElfinderPath())) {
-            if (!$this->files->deleteDirectory($destination)) {
-                $this->error('Could not delete existing package folder');
-            }
-            $copyElfinder = $this->copyElfinderFiles($destination);
-        } else {
-            $copyElfinder = false;
-            $this->error('Could not find elfinder path');
+    public function showCKeditor4()
+    {
+        $dir = 'packages/barryvdh/' . $this->package;
+        $locale = $this->app->config->get('app.locale');
+        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
+        {
+            $locale = false;
+        }
+        return $this->app['view']->make($this->package . '::ckeditor4')->with(compact('dir', 'locale'));
+    }
+
+    public function showConnector()
+    {
+        $dir = $this->app->config->get($this->package . '::dir');
+        $roots = $this->app->config->get($this->package . '::roots');
+
+        if (!$roots)
+        {
+            $roots = array(
+                array(
+                    'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
+                    'path' => $this->app['path.public'] . DIRECTORY_SEPARATOR . $dir, // path to files (REQUIRED)
+                    'URL' => $this->app['url']->asset($dir), // URL to files (REQUIRED)
+                    'accessControl' => $this->app->config->get($this->package . '::access') // filter callback (OPTIONAL)
+                )
+            );
         }
 
-        if ( ! is_null($path = $this->getPath())) {
-            $copyPublic = $this->files->copyDirectory($path, $destination);
-        } else {
-            $copyPublic = false;
-            $this->error('Could not find public path');
-        }
+        $opts = $this->app->config->get($this->package . '::options', array());
+        $opts = array_merge(array(
+                'roots' => $roots
+            ), $opts);
 
-        if ($copyElfinder && $copyPublic) {
-            $this->info('Published assets for: '.$package);
-        } else {
-            $this->error('Could not publish alles assets for '.$package);
-        }
-
+        // run elFinder
+        $connector = new \elFinderConnector(new \elFinder($opts));
+        return new StreamedResponse(function () use($connector) {
+                $connector->run();
+            });
     }
 
-    /**
-     * Copy specific directories from elFinder to their destination
-     *
-     * @param $destination
-     * @return bool
-     */
-    protected function copyElfinderFiles($destination)
+    public function showPopup($input_id)
     {
-        $result = true;
-        $directories = array('js', 'css', 'img');
-        $elfinderPath = $this->getElfinderPath();
-        foreach($directories as $dir){
-            $path = $elfinderPath.'/'.$dir;
-            $success = $this->files->copyDirectory($path, $destination.'/'.$dir);
-            $result = $success && $result;
+        $dir = 'packages/barryvdh/' . $this->package;
+        $locale = $this->app->config->get('app.locale');
+        if ( ! file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
+        {
+            $locale = false;
         }
-        return $result;
-    }
 
-    /**
-     * Get the path of the public folder, to merge with the elFinder folders.
-     */
-    protected function getPath(){
-        $path = with(new \ReflectionClass($this))->getFileName();
-        return realpath(dirname($path).'/../../public');
+        return $this->app['view']->make($this->package . '::standalonepopup')->with(compact('dir', 'locale', 'input_id'));
     }
-
-    /**
-     * Find the elFinder path
-     *
-     * @return string
-     */
-    protected function getElfinderPath()
-    {
-        $reflector = new \ReflectionClass('elFinder');
-        return realpath(dirname($reflector->getFileName()) . '/..');
-    }
-
 }
