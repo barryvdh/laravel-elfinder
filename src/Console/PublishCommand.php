@@ -69,7 +69,7 @@ class PublishCommand extends Command {
      */
     protected function getPath(){
         $path = with(new \ReflectionClass($this))->getFileName();
-        return realpath(dirname($path).'/../../../../public');
+        return realpath(dirname($path).'/../../public');
     }
 
 

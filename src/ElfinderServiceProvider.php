@@ -30,9 +30,8 @@ class ElfinderServiceProvider extends ServiceProvider {
 	{
         $this->app['command.elfinder.publish'] = $this->app->share(function($app)
         {
-            //Make sure the asset publisher is registered.
-            $app->register('Illuminate\Foundation\Providers\PublisherServiceProvider');
-            return new Console\PublishCommand($app['asset.publisher']);
+			$publicPath = $app['path.public'];
+            return new Console\PublishCommand($app['files'], $publicPath);
         });
         $this->commands('command.elfinder.publish');
 	}
