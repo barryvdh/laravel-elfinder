@@ -18,7 +18,7 @@ class ElfinderServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('barryvdh/laravel-elfinder');
+		$this->package('barryvdh/laravel-elfinder', 'laravel-elfinder', __DIR__);
 	}
 
 	/**
