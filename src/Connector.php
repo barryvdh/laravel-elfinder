@@ -34,9 +34,13 @@ class Connector extends \elFinderConnector {
         unset($data['header']);
 
         $headers = array();
-        foreach((array) $header as $headerString){
-            list($key, $value) = explode(':', $headerString, 2);
-            $headers[$key] = $value;
+        if($header){
+            foreach((array) $header as $headerString){
+                if(strpos($headerString, ':') !== false){
+                    list($key, $value) = explode(':', $headerString, 2);
+                    $headers[$key] = $value;
+                }
+            }
         }
 
         if (isset($data['pointer'])) {
