@@ -77,10 +77,9 @@ class ElfinderController extends BaseController
             ), $opts);
 
         // run elFinder
-        $connector = new \elFinderConnector(new \elFinder($opts));
-        return new StreamedResponse(function () use($connector) {
-                $connector->run();
-            });
+        $connector = new Connector(new \elFinder($opts));
+        $connector->run();
+        return $connector->getResponse();
     }
 
     public function showPopup($input_id)
