@@ -30,10 +30,14 @@ class Connector extends \elFinderConnector {
      **/
     protected function output(array $data) {
 
-        $headers = isset($data['header']) ? $data['header'] : $this->header;
-        $headers = (array) $headers;
-
+        $header = isset($data['header']) ? $data['header'] : $this->header;
         unset($data['header']);
+
+        $headers = array();
+        foreach((array) $header as $headerString){
+            list($key, $value) = explode(':', $headerString, 2);
+            $headers[$key] = $value;
+        }
 
         if (isset($data['pointer'])) {
             $this->response = new StreamedResponse(function () use($data) {
