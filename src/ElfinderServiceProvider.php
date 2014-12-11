@@ -19,6 +19,10 @@ class ElfinderServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('barryvdh/laravel-elfinder', 'laravel-elfinder', __DIR__);
+
+        if (!defined('ELFINDER_IMG_PARENT_URL')) {
+			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/laravel-elfinder'));
+		}
 	}
 
 	/**
