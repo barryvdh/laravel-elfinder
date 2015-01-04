@@ -31,7 +31,7 @@
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
-                url : '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>'  // connector URL
+                url : '<?= action('\Barryvdh\Elfinder\ElfinderController@showConnector') ?>'  // connector URL
             });
         });
     </script>
