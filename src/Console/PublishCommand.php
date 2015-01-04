@@ -56,8 +56,9 @@ class PublishCommand extends Command {
         $destination = $this->publishPath . "/packages/{$package}";
 
         if ( ! is_null($path = $this->getElfinderPath())) {
-            if (!$this->files->deleteDirectory($destination)) {
-                $this->error('Could not delete existing package folder');
+            if ($this->files->exists($destination)) {
+                $this->files->deleteDirectory($destination);
+                $this->info('Old published Assets have been removed');
             }
             $copyElfinder = $this->copyElfinderFiles($destination);
         } else {
