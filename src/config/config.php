@@ -47,17 +47,5 @@ return array(
     */
 
     'options' => array(),
-    
-    /*
-    |--------------------------------------------------------------------------
-    | CSRF
-    |--------------------------------------------------------------------------
-    |
-    | CSRF in a state by default false.
-    | If you want to use CSRF it can be replaced with true (boolean).
-    |
-    */
-
-    'csrf'=>null,
 
 );

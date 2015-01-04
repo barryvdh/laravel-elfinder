@@ -27,7 +27,12 @@
         $().ready(function () {
             var elf = $('#elfinder').elfinder({
                 // set your elFinder options here
-                <?php if($locale){ echo "lang: '$locale',\n"; } ?>
+                <?php if($locale){ ?>
+                    lang: '<?= $locale ?>', // locale
+                <?php } ?>
+                customData: { 
+                    _token: '<?= csrf_token() ?>'
+                },
                 url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
                 dialog: {width: 900, modal: true, title: 'Select a file'},
                 resizable: false,
@@ -39,7 +44,7 @@
                 getFileCallback: function (file) {
                     window.parent.processSelectedFile(file.path, '<?= $input_id?>');
                     parent.jQuery.colorbox.close();
-                },
+                }
             }).elfinder('instance');
         });
     </script>

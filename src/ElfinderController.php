@@ -1,7 +1,6 @@
 <?php namespace Barryvdh\Elfinder;
 
 use Barryvdh\Elfinder\Support\BaseController;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ElfinderController extends BaseController
 {
@@ -9,49 +8,39 @@ class ElfinderController extends BaseController
 
     public function showIndex()
     {
-        $dir = 'packages/barryvdh/' . $this->package;
-        $locale = $this->app->config->get('app.locale');
-        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
-        {
-            $locale = false;
-        }
-        return $this->app['view']->make($this->package . '::elfinder')->with(compact('dir', 'locale'));
+        return $this->app['view']
+            ->make($this->package . '::elfinder')
+            ->with($this->getViewVars());
     }
 
     public function showTinyMCE()
     {
-        $dir = 'packages/barryvdh/' . $this->package;
-        $locale = $this->app->config->get('app.locale');
-        
-        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
-        {
-            $locale = false;
-        }
-        return $this->app['view']->make($this->package . '::tinymce')->with(compact('dir', 'locale'));
+        return $this->app['view']
+            ->make($this->package . '::tinymce')
+            ->with($this->getViewVars());
     }
 
     public function showTinyMCE4()
     {
-        $dir = 'packages/barryvdh/' . $this->package;
-        $locale = $this->app->config->get('app.locale');
-        $csrf = $this->app->config->get($this->package . '::csrf');
-        
-        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
-        {
-            $locale = false;
-        }
-        return $this->app['view']->make($this->package . '::tinymce4')->with(compact('dir', 'locale','csrf'));
+
+        return $this->app['view']
+            ->make($this->package . '::tinymce4')
+            ->with($this->getViewVars());
     }
 
     public function showCKeditor4()
     {
-        $dir = 'packages/barryvdh/' . $this->package;
-        $locale = $this->app->config->get('app.locale');
-        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
-        {
-            $locale = false;
-        }
-        return $this->app['view']->make($this->package . '::ckeditor4')->with(compact('dir', 'locale'));
+        return $this->app['view']
+            ->make($this->package . '::ckeditor4')
+            ->with($this->getViewVars());
+    }
+
+    public function showPopup($input_id)
+    {
+        return $this->app['view']
+            ->make($this->package . '::standalonepopup')
+            ->with($this->getViewVars())
+            ->with(compact('input_id'));
     }
 
     public function showConnector()
@@ -82,15 +71,14 @@ class ElfinderController extends BaseController
         return $connector->getResponse();
     }
 
-    public function showPopup($input_id)
+    protected function getViewVars()
     {
         $dir = 'packages/barryvdh/' . $this->package;
         $locale = $this->app->config->get('app.locale');
-        if ( ! file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js"))
-        {
+        if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js")) {
             $locale = false;
         }
-
-        return $this->app['view']->make($this->package . '::standalonepopup')->with(compact('dir', 'locale', 'input_id'));
+        $csrf = true;
+        return compact('dir', 'locale', 'csrf');
     }
 }
