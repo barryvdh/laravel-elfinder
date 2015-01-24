@@ -22,6 +22,8 @@ class ElfinderServiceProvider extends ServiceProvider {
         $config = array_merge($config, $this->app['config']->get('elfinder', []));
         $this->app['config']->set('elfinder', $config);
         
+        $this->package('barryvdh/laravel-elfinder', 'laravel-elfinder', __DIR__);
+
         if (!defined('ELFINDER_IMG_PARENT_URL')) {
 			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/laravel-elfinder'));
 		}
@@ -43,5 +45,25 @@ class ElfinderServiceProvider extends ServiceProvider {
 	{
 		return array('command.elfinder.publish',);
 	}
+
+  /**
+   * Register the package's component namespaces.
+   *
+   * @param  string  $package
+   * @param  string  $namespace
+   * @param  string  $path
+   * @return void
+   */
+  public function package($package, $namespace = null, $path = null)
+  {
+      // Register view files
+      $appView = $this->app['path']."/views/packages/{$package}";
+      if ($this->app['files']->isDirectory($appView))
+      {
+          $this->app['view']->addNamespace($namespace, $appView);
+      }
+
+      $this->app['view']->addNamespace($namespace, $path.'/views');
+  }
 
 }

@@ -34,7 +34,7 @@
                 customData: { 
                     _token: '<?= csrf_token() ?>'
                 },
-                url : '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>'  // connector URL
+                url : '<?= action('\Barryvdh\Elfinder\ElfinderController@showConnector') ?>'  // connector URL
             });
         });
     </script>
