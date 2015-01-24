@@ -1,11 +1,23 @@
 <?php namespace Barryvdh\Elfinder;
 
-use Barryvdh\Elfinder\Support\BaseController;
+use Illuminate\Routing\Controller;
 
-class ElfinderController extends BaseController
+class ElfinderController extends Controller
 {
     protected $package = 'laravel-elfinder';
 
+    /**
+     * The application instance.
+     *
+     * @var \Illuminate\Foundation\Application
+     */
+    protected $app;
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+    }
+        
     public function showIndex()
     {
         return $this->app['view']
@@ -45,8 +57,8 @@ class ElfinderController extends BaseController
 
     public function showConnector()
     {
-        $dir = $this->app->config->get($this->package . '::dir');
-        $roots = $this->app->config->get($this->package . '::roots');
+        $dir = $this->app->config->get('elfinder.dir');
+        $roots = $this->app->config->get('elfinder.roots');
 
         if (!$roots)
         {
@@ -55,12 +67,12 @@ class ElfinderController extends BaseController
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
                     'path' => $this->app['path.public'] . DIRECTORY_SEPARATOR . $dir, // path to files (REQUIRED)
                     'URL' => $this->app['url']->asset($dir), // URL to files (REQUIRED)
-                    'accessControl' => $this->app->config->get($this->package . '::access') // filter callback (OPTIONAL)
+                    'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                 )
             );
         }
 
-        $opts = $this->app->config->get($this->package . '::options', array());
+        $opts = $this->app->config->get('elfinder.options', array());
         $opts = array_merge(array(
                 'roots' => $roots
             ), $opts);

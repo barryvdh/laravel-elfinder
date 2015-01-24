@@ -103,8 +103,7 @@ class PublishCommand extends Command {
      *  Get the path of the public folder, to merge with the elFinder folders.
      */
     protected function getPath(){
-        $path = with(new \ReflectionClass($this))->getFileName();
-        return realpath(dirname($path).'/../../public');
+        return __DIR__ .'/../../public');
     }
 
     /**

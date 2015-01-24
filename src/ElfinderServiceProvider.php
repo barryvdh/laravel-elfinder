@@ -12,26 +12,20 @@ class ElfinderServiceProvider extends ServiceProvider {
 	protected $defer = false;
 
 	/**
-	 * Bootstrap the application events.
-	 *
-	 * @return void
-	 */
-	public function boot()
-	{
-		$this->package('barryvdh/laravel-elfinder', 'laravel-elfinder', __DIR__);
-
-        if (!defined('ELFINDER_IMG_PARENT_URL')) {
-			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/laravel-elfinder'));
-		}
-	}
-
-	/**
 	 * Register the service provider.
 	 *
 	 * @return void
 	 */
 	public function register()
 	{
+        $config = require __DIR__ . '/../config/elfinder.php';
+        $config = array_merge($config, $this->app['config']->get('elfinder', []));
+        $this->app['config']->set('elfinder', $config);
+        
+        if (!defined('ELFINDER_IMG_PARENT_URL')) {
+			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/laravel-elfinder'));
+		}
+        
         $this->app['command.elfinder.publish'] = $this->app->share(function($app)
         {
 			$publicPath = $app['path.public'];
