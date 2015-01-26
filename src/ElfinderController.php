@@ -58,25 +58,21 @@ class ElfinderController extends Controller
 
     public function showConnector()
     {
-        $dir = $this->app->config->get('elfinder.dir');
-        $roots = $this->app->config->get('elfinder.roots');
-
-        if (!$roots)
-        {
-            $roots = array(
-                array(
+        $roots = $this->app->config->get('elfinder.roots', []);
+        if (empty($roots)) {
+            $roots = [];
+            if ($dir = $this->app->config->get('elfinder.dir')) {
+                $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => $this->app['path.public'] . DIRECTORY_SEPARATOR . $dir, // path to files (REQUIRED)
-                    'URL' => $this->app['url']->asset($dir), // URL to files (REQUIRED)
+                    'path' => public_path($dir), // path to files (REQUIRED)
+                    'URL' => url($dir), // URL to files (REQUIRED)
                     'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
-                )
-            );
+                ];
+            }
         }
 
         $opts = $this->app->config->get('elfinder.options', array());
-        $opts = array_merge(array(
-                'roots' => $roots
-            ), $opts);
+        $opts = array_merge(['roots' => $roots], $opts);
 
         // run elFinder
         $connector = new Connector(new \elFinder($opts));
