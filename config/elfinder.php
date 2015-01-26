@@ -24,7 +24,7 @@ return array(
 
     'route' => [
         'prefix' => 'elfinder',
-        'before' => 'auth',
+        'middleware' => 'auth',
     ],
 
     /*
