@@ -2,7 +2,7 @@
 
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Application;
-
+use Illuminate\Filesystem\FilesystemAdapter;
 
 class ElfinderController extends Controller
 {
@@ -60,14 +60,31 @@ class ElfinderController extends Controller
     {
         $roots = $this->app->config->get('elfinder.roots', []);
         if (empty($roots)) {
-            $roots = [];
-            if ($dir = $this->app->config->get('elfinder.dir')) {
+            $dirs = (array) $this->app['config']->get('elfinder.dir', []);
+            foreach ($dirs as $dir) {
                 $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
                     'path' => public_path($dir), // path to files (REQUIRED)
                     'URL' => url($dir), // URL to files (REQUIRED)
                     'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                 ];
+            }
+
+            $disks = (array) $this->app['config']->get('elfinder.disks', []);
+            foreach ($disks as $key => $root) {
+                if (is_string($root)) {
+                    $key = $root;
+                    $root = [];
+                }
+                $disk = app('filesystem')->disk($key);
+                if ($disk instanceof FilesystemAdapter) {
+                    $defaults = [
+                        'driver' => 'Flysystem',
+                        'filesystem' => $disk->getDriver(),
+                        'alias' => $key,
+                    ];
+                    $roots[] = array_merge($defaults, $root);
+                }
             }
         }
 
