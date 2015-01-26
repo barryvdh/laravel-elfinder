@@ -1,10 +1,12 @@
 <?php namespace Barryvdh\Elfinder;
 
 use Illuminate\Routing\Controller;
+use Illuminate\Foundation\Application;
+
 
 class ElfinderController extends Controller
 {
-    protected $package = 'laravel-elfinder';
+    protected $package = 'elfinder';
 
     /**
      * The application instance.
@@ -34,7 +36,6 @@ class ElfinderController extends Controller
 
     public function showTinyMCE4()
     {
-
         return $this->app['view']
             ->make($this->package . '::tinymce4')
             ->with($this->getViewVars());
