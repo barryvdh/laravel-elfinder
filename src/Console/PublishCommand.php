@@ -52,7 +52,7 @@ class PublishCommand extends Command {
     public function fire()
     {
 
-        $package = 'barryvdh/laravel-elfinder';
+        $package = 'barryvdh/elfinder';
         $destination = $this->publishPath . "/packages/{$package}";
 
         if ( ! is_null($path = $this->getElfinderPath())) {
@@ -74,7 +74,7 @@ class PublishCommand extends Command {
         }
 
         if ($copyElfinder && $copyPublic) {
-            $this->info('Published assets for: '.$package);
+            $this->info('Published assets to: '.$package);
         } else {
             $this->error('Could not publish alles assets for '.$package);
         }

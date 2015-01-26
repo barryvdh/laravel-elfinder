@@ -34,7 +34,7 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         $this->loadConfigFrom('elfinder', $configPath);
         $this->publishes([$configPath => config_path('elfinder.php')]);
 
-        $viewPath = __DIR__.'/../views';
+        $viewPath = __DIR__.'/../resources/views';
         $this->loadViewsFrom('elfinder', $viewPath);
         $this->publishes([
             $viewPath => base_path('resources/views/vendor/elfinder'),
