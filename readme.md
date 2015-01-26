@@ -26,29 +26,39 @@ You need to copy the assets to the public folder, using the following artisan co
 	
 Remember to publish the assets after each update (or add the command to your post-update-cmd in composer.json)
 
-You can now add the routes for elFinder to your routes.php
-
-    Route::group(array('before' => 'auth'), function()
-        {
-            \Route::get('elfinder', 'Barryvdh\Elfinder\ElfinderController@showIndex');
-            \Route::any('elfinder/connector', 'Barryvdh\Elfinder\ElfinderController@showConnector');
-        });
-
-Offcourse you can define your own filters/routes if you want.
+Routes are added in the ElfinderServiceProvider. You can set the group parameters for the routes in the configuration.
+You can change the prefix or filter/middleware for the routes. If you want full customisation, you can extend the ServiceProvider and override the `map()` function.
 
 ### Configuration
 
 The default configuration requires a directory called 'files' in the public folder. You can change this by publishing the config file.
 
-    php artisan config:publish barryvdh/laravel-elfinder
+    php artisan vendor:publish
 
-In your app/config/packages/barryvdh/laravel-elfinder, you can change the default folder, the access callback or define your own roots.
+In your config/elfinder.php, you can change the default folder, the access callback or define your own roots.
+
+### Using Filesystem disks
+
+Laravel 5 has the ability to use Flysystem adapters as local/cloud disks. You can add those disks to elFinder, using the `disks` config.
+
+This examples adds the `local` disk and `my-disk`:
+
+    'disks' => [
+        'local',
+        'my-disk' => [
+            'URL' => url('to/disk'),
+            'alias' => 'Local storage',
+        ]
+    ],
+    
+You can add an array to provide extra options, like the URL, alias etc. [Look here](https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options-2.1#root-options) for all options.
+Also see [elfinder-flysystem-driver](https://github.com/barryvdh/elfinder-flysystem-driver) for [Glide](http://glide.thephpleague.com/) usage. 
 
 ### TinyMCE 4.x
 
-You can add tinyMCE integration by adding the following route:
+You can add tinyMCE integration with the following action:
 
-    \Route::get('elfinder/tinymce', 'Barryvdh\Elfinder\ElfinderController@showTinyMCE4');
+    'Barryvdh\Elfinder\ElfinderController@showTinyMCE4'
 
 In the TinyMCE init code, add the following line:
 
@@ -77,9 +87,9 @@ function elFinderBrowser (field_name, url, type, win) {
  
 ### TinyMCE 3.x
 
-You can add tinyMCE integration by adding the following route:
+You can add tinyMCE integration with the following action:
 
-    \Route::get('elfinder/tinymce', 'Barryvdh\Elfinder\ElfinderController@showTinyMCE');
+    'Barryvdh\Elfinder\ElfinderController@showTinyMCE'
 
 In the TinyMCE init code, add the following line:
 
@@ -111,9 +121,9 @@ function elFinderBrowser (field_name, url, type, win) {
 
 ### CKeditor 4.x
 
-You can add CKeditor integration by adding the following route:
+You can add CKeditor integration with the following action:
 
-    \Route::get('elfinder/ckeditor4', 'Barryvdh\Elfinder\ElfinderController@showCKeditor4');
+    'Barryvdh\Elfinder\ElfinderController@showCKeditor4'
 
 In the CKeditor config file:
 
@@ -129,9 +139,9 @@ Add support for a popup window, we have used [Jacklmoore's jQuery colorbox](http
 
 #### Add required routes
 
-First, Add the following route to your routes file, ensuring it is protected by your chosen Auth filter solution.
+You can add the popup with the following action:
 
-```Route::get('elfinder/standalonepopup/{input_id}', 'Barryvdh\Elfinder\ElfinderController@showPopup');```
+    'Barryvdh\Elfinder\ElfinderController@showPopup'
 
 #### Add the required resources
 

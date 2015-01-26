@@ -67,6 +67,10 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         {
             $router->get('/', 'ElfinderController@showIndex');
             $router->any('connector', 'ElfinderController@showConnector');
+            $router->get('popup', 'ElfinderController@showPopup');
+            $router->get('tinymce', 'ElfinderController@showTinyMCE');
+            $router->get('tinymce4', 'ElfinderController@showTinyMCE4');
+            $router->get('ckeditor', 'ElfinderController@showCKeditor4');
         });
     }
 
