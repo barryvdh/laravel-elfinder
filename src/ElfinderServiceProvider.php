@@ -31,8 +31,26 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         parent::register();
 
         $configPath = __DIR__ . '/../config/elfinder.php';
-        $this->loadConfigFrom('elfinder', $configPath);
+        $this->mergeConfigFrom('elfinder', $configPath);
         $this->publishes([$configPath => config_path('elfinder.php')]);
+
+        $this->app['command.elfinder.publish'] = $this->app->share(function($app)
+        {
+			$publicPath = $app['path.public'];
+            return new Console\PublishCommand($app['files'], $publicPath);
+        });
+        $this->commands('command.elfinder.publish');
+	}
+    
+	/**
+	 * Define your route model bindings, pattern filters, etc.
+	 *
+	 * @param  \Illuminate\Routing\Router  $router
+	 * @return void
+	 */
+	public function boot(Router $router)
+	{
+		parent::boot($router);
 
         $viewPath = __DIR__.'/../resources/views';
         $this->loadViewsFrom('elfinder', $viewPath);
@@ -43,13 +61,6 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         if (!defined('ELFINDER_IMG_PARENT_URL')) {
 			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/laravel-elfinder'));
 		}
-        
-        $this->app['command.elfinder.publish'] = $this->app->share(function($app)
-        {
-			$publicPath = $app['path.public'];
-            return new Console\PublishCommand($app['files'], $publicPath);
-        });
-        $this->commands('command.elfinder.publish');
 	}
 
     /**
@@ -83,20 +94,5 @@ class ElfinderServiceProvider extends RouteServiceProvider {
 	{
 		return array('command.elfinder.publish',);
 	}
-
-    /**
-     * Register the package defaults.
-     *
-     * @param  string  $key
-     * @param  string  $path
-     * @return void
-     */
-    protected function loadConfigFrom($key, $path)
-    {
-        $defaults = $this->app['files']->getRequire($path);
-        $config = $this->app['config']->get($key, []);
-        $this->app['config']->set($key, config_merge($defaults, $config));
-    }
-
 
 }
