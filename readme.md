@@ -69,15 +69,12 @@ See [elfinder-flysystem-driver](https://github.com/barryvdh/elfinder-flysystem-d
 2. Create a Glide Server for your disk, eg. on the `glide/<path>` route, using a cache path:
 
     Route::get('glide/{path}', function($path){
-    
-            $server = \League\Glide\ServerFactory::create([
-                'source' => app('filesystem')->disk('public')->getDriver(),
-                'cache' => storage_path('glide'),
-            ]);
-            
-            return $server->getImageResponse($path, Input::query());
-            
-        })->where('path', '.+');
+        $server = \League\Glide\ServerFactory::create([
+            'source' => app('filesystem')->disk('public')->getDriver(),
+            'cache' => storage_path('glide'),
+        ]);
+        return $server->getImageResponse($path, Input::query());
+    })->where('path', '.+');
         
 4. Add the disk to your elfinder config:
 
