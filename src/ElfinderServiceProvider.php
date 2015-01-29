@@ -31,7 +31,7 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         parent::register();
 
         $configPath = __DIR__ . '/../config/elfinder.php';
-        $this->mergeConfigFrom('elfinder', $configPath);
+        $this->mergeConfigFrom($configPath, 'elfinder');
         $this->publishes([$configPath => config_path('elfinder.php')]);
 
         $this->app['command.elfinder.publish'] = $this->app->share(function($app)
@@ -53,7 +53,7 @@ class ElfinderServiceProvider extends RouteServiceProvider {
 		parent::boot($router);
 
         $viewPath = __DIR__.'/../resources/views';
-        $this->loadViewsFrom('elfinder', $viewPath);
+        $this->loadViewsFrom($viewPath, 'elfinder');
         $this->publishes([
             $viewPath => base_path('resources/views/vendor/elfinder'),
         ]);
