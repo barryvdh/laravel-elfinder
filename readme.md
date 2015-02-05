@@ -1,5 +1,7 @@
 ## elFinder Package for Laravel 4
 
+### For Laravel 4, please use the [0.2 branch](https://github.com/barryvdh/laravel-elfinder/tree/0.2)!
+
 [![Packagist License](https://poser.pugx.org/barryvdh/laravel-elfinder/license.png)](http://choosealicense.com/licenses/mit/)
 [![Latest Stable Version](https://poser.pugx.org/barryvdh/laravel-elfinder/version.png)](https://packagist.org/packages/barryvdh/laravel-elfinder)
 [![Total Downloads](https://poser.pugx.org/barryvdh/laravel-elfinder/d/total.png)](https://packagist.org/packages/barryvdh/laravel-elfinder)
