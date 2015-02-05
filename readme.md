@@ -1,4 +1,4 @@
-## elFinder Package for Laravel 4
+## elFinder Package for Laravel 5
 
 ### For Laravel 4, please use the [0.2 branch](https://github.com/barryvdh/laravel-elfinder/tree/0.2)!
 
