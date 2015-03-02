@@ -34,7 +34,7 @@
                 customData: { 
                     _token: '<?= csrf_token() ?>'
                 },
-                url : '<?= action('\Barryvdh\Elfinder\ElfinderController@showConnector') ?>'  // connector URL
+                url : '<?= route("elfinder.connector") ?>'  // connector URL
             });
         });
     </script>
