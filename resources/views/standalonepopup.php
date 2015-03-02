@@ -33,7 +33,7 @@
                 customData: { 
                     _token: '<?= csrf_token() ?>'
                 },
-                url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
+                url: '<?= route("elfinder.popup") ?>',  // connector URL
                 dialog: {width: 900, modal: true, title: 'Select a file'},
                 resizable: false,
                 commandsOptions: {
