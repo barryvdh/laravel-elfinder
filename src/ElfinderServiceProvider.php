@@ -77,11 +77,11 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         $router->group($config, function($router)
         {
             $router->get('/', 'ElfinderController@showIndex');
-            $router->any('connector', 'ElfinderController@showConnector');
-            $router->get('popup/{input_id}', 'ElfinderController@showPopup');
-            $router->get('tinymce', 'ElfinderController@showTinyMCE');
-            $router->get('tinymce4', 'ElfinderController@showTinyMCE4');
-            $router->get('ckeditor', 'ElfinderController@showCKeditor4');
+            $router->any('connector', ['as' => 'elfinder.connector', 'uses' => 'ElfinderController@showConnector']);
+            $router->get('popup/{input_id}', ['as' => 'elfinder.popup', 'uses' => 'ElfinderController@showPopup']);
+            $router->get('tinymce', ['as' => 'elfinder.tinymce', 'uses' => 'ElfinderController@showTinyMCE']);
+            $router->get('tinymce4', ['as' => 'elfinder.tinymce4', 'uses' => 'ElfinderController@showTinyMCE4']);
+            $router->get('ckeditor', ['as' => 'elfinder.ckeditor', 'uses' => 'ElfinderController@showCKeditor4']);
         });
     }
 

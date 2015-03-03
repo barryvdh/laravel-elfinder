@@ -42,7 +42,7 @@
                 customData: { 
                     _token: '<?= csrf_token() ?>'
                 },
-                url: '<?= URL::action('Barryvdh\Elfinder\ElfinderController@showConnector') ?>',  // connector URL
+                url: '<?= route("elfinder.ckeditor") ?>',  // connector URL
                 getFileCallback : function(file) {
                     window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
                     window.close();
