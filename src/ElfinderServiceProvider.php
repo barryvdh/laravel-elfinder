@@ -59,7 +59,7 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         ], 'views');
 
         if (!defined('ELFINDER_IMG_PARENT_URL')) {
-			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/laravel-elfinder'));
+			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/elfinder'));
 		}
 	}
 
