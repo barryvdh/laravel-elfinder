@@ -65,7 +65,7 @@
                 customData: { 
                     _token: '<?= csrf_token() ?>'
                 },
-                url : '<?= route("elfinder.tinymce") ?>',  // connector URL
+                url : '<?= route("elfinder.connector") ?>',  // connector URL
                 getFileCallback: function(file) { // editor callback
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
                 }
