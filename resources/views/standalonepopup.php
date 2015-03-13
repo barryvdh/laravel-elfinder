@@ -33,7 +33,7 @@
                 customData: { 
                     _token: '<?= csrf_token() ?>'
                 },
-                url: '<?= route("elfinder.popup") ?>',  // connector URL
+                url: '<?= route("elfinder.connector") ?>',  // connector URL
                 dialog: {width: 900, modal: true, title: 'Select a file'},
                 resizable: false,
                 commandsOptions: {
