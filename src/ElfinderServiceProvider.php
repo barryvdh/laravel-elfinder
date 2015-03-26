@@ -1,18 +1,9 @@
 <?php namespace Barryvdh\Elfinder;
 
 use Illuminate\Routing\Router;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-class ElfinderServiceProvider extends RouteServiceProvider {
-
-    /**
-     * This namespace is applied to the controller routes in your routes file.
-     *
-     * In addition, it is set as the URL generator's root namespace.
-     *
-     * @var string
-     */
-    protected $namespace = 'Barryvdh\Elfinder';
+class ElfinderServiceProvider extends ServiceProvider {
 
 	/**
 	 * Indicates if loading of the provider is deferred.
@@ -28,8 +19,6 @@ class ElfinderServiceProvider extends RouteServiceProvider {
 	 */
 	public function register()
 	{
-        parent::register();
-
         $configPath = __DIR__ . '/../config/elfinder.php';
         $this->mergeConfigFrom($configPath, 'elfinder');
         $this->publishes([$configPath => config_path('elfinder.php')], 'config');
@@ -61,19 +50,10 @@ class ElfinderServiceProvider extends RouteServiceProvider {
         if (!defined('ELFINDER_IMG_PARENT_URL')) {
 			define('ELFINDER_IMG_PARENT_URL', $this->app['url']->asset('packages/barryvdh/elfinder'));
 		}
-	}
 
-    /**
-     * Define the routes for the application.
-     *
-     * @return void
-     */
-    public function map()
-    {
         $config = $this->app['config']->get('elfinder.route', []);
-        $config['namespace'] = $this->namespace;
+        $config['namespace'] = 'Barryvdh\Elfinder';
 
-        $router = $this->app['Illuminate\Routing\Router'];
         $router->group($config, function($router)
         {
             $router->get('/', 'ElfinderController@showIndex');
@@ -83,7 +63,7 @@ class ElfinderServiceProvider extends RouteServiceProvider {
             $router->get('tinymce4', ['as' => 'elfinder.tinymce4', 'uses' => 'ElfinderController@showTinyMCE4']);
             $router->get('ckeditor', ['as' => 'elfinder.ckeditor', 'uses' => 'ElfinderController@showCKeditor4']);
         });
-    }
+	}
 
 	/**
 	 * Get the services provided by the provider.
@@ -92,7 +72,7 @@ class ElfinderServiceProvider extends RouteServiceProvider {
 	 */
 	public function provides()
 	{
-		return array('command.elfinder.publish',);
+		return array('command.elfinder.publish');
 	}
 
 }
