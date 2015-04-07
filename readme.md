@@ -188,7 +188,7 @@ You can add the popup with the following action:
 
 #### Add the required resources
 
-Be Sure that you have published this packages public assets as described above. Then within the <head> section of your page include the required colorbox styles (we suggest example1' styles, but any will do)
+Be Sure that you have published this packages public assets as described above. Then within the \<head> section of your page include the required colorbox styles (we suggest example1' styles, but any will do)
 
 ```<link href="/assets/css/colorbox.css" rel="stylesheet">```
 
@@ -196,7 +196,7 @@ Colorbox depends on jQuery, so ensure that you have it included within your page
 
 ```<script type="text/javascript" src="/assets/js/jquery.colorbox-min.js"></script>```
 
-Now add a link to the popup script, just before the close of your <body> tag. A non-minified version is also provided, for if you wish to modify the colorbox config. Simply copy to your assets location, and adjust/minify as desired.
+Now add a link to the popup script, just before the close of your \<body> tag. A non-minified version is also provided, for if you wish to modify the colorbox config. Simply copy to your assets location, and adjust/minify as desired.
 
 ```<script type="text/javascript" src="/packages/barryvdh/laravel-elfinder/js/standalonepopup.min.js"></script>```
 
