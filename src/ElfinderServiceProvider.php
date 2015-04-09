@@ -39,8 +39,6 @@ class ElfinderServiceProvider extends ServiceProvider {
 	 */
 	public function boot(Router $router)
 	{
-		parent::boot($router);
-
         $viewPath = __DIR__.'/../resources/views';
         $this->loadViewsFrom($viewPath, 'elfinder');
         $this->publishes([
