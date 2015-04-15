@@ -105,9 +105,9 @@ URLs will also point to the Glide server, for images.
 
 ### TinyMCE 4.x
 
-You can add tinyMCE integration with the following action:
+You can use tinyMCE integration with the following route, which by default is `/elfinder/tinymce4`:
 
-    'Barryvdh\Elfinder\ElfinderController@showTinyMCE4'
+    route('elfinder.tinymce4');
 
 In the TinyMCE init code, add the following line:
 
@@ -120,7 +120,7 @@ Then add the following function (change the `elfinder_url` to the correct path o
 ```javascript
 function elFinderBrowser (field_name, url, type, win) {
   tinymce.activeEditor.windowManager.open({
-    file: '/elfinder/tinymce',// use an absolute path!
+    file: '<?= route('elfinder.tinymce4') ?>',// use an absolute path!
     title: 'elFinder 2.0',
     width: 900,
     height: 450,
@@ -136,9 +136,9 @@ function elFinderBrowser (field_name, url, type, win) {
  
 ### TinyMCE 3.x
 
-You can add tinyMCE integration with the following action:
+You can add tinyMCE integration with the following route (default: `/elfinder/tinymce`):
 
-    'Barryvdh\Elfinder\ElfinderController@showTinyMCE'
+    route('elfinder.tinymce');
 
 In the TinyMCE init code, add the following line:
 
@@ -170,14 +170,14 @@ function elFinderBrowser (field_name, url, type, win) {
 
 ### CKeditor 4.x
 
-You can add CKeditor integration with the following action:
+You can add CKeditor integration with the following route:
 
-    'Barryvdh\Elfinder\ElfinderController@showCKeditor4'
+    'elfinder.ckeditor'
 
 In the CKeditor config file:
 
 ```javascript
-config.filebrowserBrowseUrl = '/elfinder/ckeditor4';
+config.filebrowserBrowseUrl = '/elfinder/ckeditor';
 ```
 
 ### Standalone Popup Selector
