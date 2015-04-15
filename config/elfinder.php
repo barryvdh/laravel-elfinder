@@ -40,7 +40,7 @@ return array(
 
     'route' => [
         'prefix' => 'elfinder',
-        'middleware' => 'auth', //Set to null to disable middleware filter
+      //  'middleware' => 'auth', //Set to null to disable middleware filter
     ],
 
     /*
