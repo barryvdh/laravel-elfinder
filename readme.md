@@ -204,7 +204,7 @@ Colorbox depends on jQuery, so ensure that you have it included within your page
 
 Now add a link to the popup script, just before the close of your \<body> tag. A non-minified version is also provided, for if you wish to modify the colorbox config. Simply copy to your assets location, and adjust/minify as desired.
 
-```<script type="text/javascript" src="/packages/barryvdh/laravel-elfinder/js/standalonepopup.min.js"></script>```
+```<script type="text/javascript" src="/packages/barryvdh/elfinder/js/standalonepopup.min.js"></script>```
 
 #### Usage
 
