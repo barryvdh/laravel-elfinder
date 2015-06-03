@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "5.0.x",
+        "illuminate/support": "5.x",
         "barryvdh/elfinder-builds": "2.1.x",
         "barryvdh/elfinder-flysystem-driver": "0.1.x@dev"
     },
