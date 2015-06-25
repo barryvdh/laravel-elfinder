@@ -44,6 +44,23 @@ The default configuration requires a directory called 'files' in the public fold
 
 In your app/config/packages/barryvdh/laravel-elfinder, you can change the default folder, the access callback or define your own roots.
 
+### Using Filesystem disks
+
+Laravel 4 has the ability to use Flysystem adapters using the package "graham-campbell/flysystem": "~1.0" [found here](https://github.com/GrahamCampbell/Laravel-Flysystem/tree/v1.0.0) as local/cloud disks. You can add those disks to elFinder, using the `disks` config.
+
+This examples adds the `local` disk and `my-disk`:
+
+    'disks' => [
+        'local',
+        'my-disk' => [
+            'URL' => url('to/disk'),
+            'alias' => 'Local storage',
+        ]
+    ],
+    
+You can add an array to provide extra options, like the URL, alias etc. [Look here](https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options-2.1#root-options) for all options.
+Also see [elfinder-flysystem-driver](https://github.com/barryvdh/elfinder-flysystem-driver) for [Glide](http://glide.thephpleague.com/) usage. 
+
 ### TinyMCE 4.x
 
 You can add tinyMCE integration by adding the following route:

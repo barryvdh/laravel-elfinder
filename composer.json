@@ -12,7 +12,8 @@
     "require": {
         "php": ">=5.3.0",
         "illuminate/support": "4.x",
-        "barryvdh/elfinder-builds": "2.1.x"
+        "barryvdh/elfinder-builds": "2.1.x",
+        "barryvdh/elfinder-flysystem-driver": "0.1.x@dev"
     },
     "autoload": {
         "psr-4": {
