@@ -22,7 +22,6 @@ class ElfinderController extends BaseController
 
     public function showTinyMCE4()
     {
-
         return $this->app['view']
             ->make($this->package . '::tinymce4')
             ->with($this->getViewVars());
@@ -45,25 +44,42 @@ class ElfinderController extends BaseController
 
     public function showConnector()
     {
-        $dir = $this->app->config->get($this->package . '::dir');
-        $roots = $this->app->config->get($this->package . '::roots');
+        $roots = $this->app->config->get($this->package . '::roots', []);
 
-        if (!$roots)
-        {
-            $roots = array(
-                array(
+        if (empty($roots)) {
+
+            $dirs = (array) $this->app->config->get($this->package . '::dir', []);
+            foreach ($dirs as $dir) {
+                $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => $this->app['path.public'] . DIRECTORY_SEPARATOR . $dir, // path to files (REQUIRED)
-                    'URL' => $this->app['url']->asset($dir), // URL to files (REQUIRED)
+                    'path' => public_path($dir), // path to files (REQUIRED)
+                    'URL' => url($dir), // URL to files (REQUIRED)
                     'accessControl' => $this->app->config->get($this->package . '::access') // filter callback (OPTIONAL)
-                )
-            );
+                ];
+            }
+
+            $disks = (array) $this->app['config']->get($this->package . '::disks', []);
+            if ($this->app->bound('flysystem')) {
+                foreach ($disks as $key => $root) {
+                    if (is_string($root)) {
+                        $key = $root;
+                        $root = [];
+                    }
+                    $driver = app('flysystem')->connection($key);
+                    if ($driver instanceof \League\Flysystem\Filesystem) {
+                        $defaults = [
+                            'driver'     => 'Flysystem',
+                            'filesystem' => $driver,
+                            'alias'      => $key,
+                        ];
+                        $roots[] = array_merge($defaults, $root);
+                    }
+                }
+            }
         }
 
         $opts = $this->app->config->get($this->package . '::options', array());
-        $opts = array_merge(array(
-                'roots' => $roots
-            ), $opts);
+        $opts = array_merge(array('roots' => $roots), $opts);
 
         // run elFinder
         $connector = new Connector(new \elFinder($opts));
