@@ -29,7 +29,7 @@
             },
             mySubmit: function (URL) {
                 // pass selected file path to TinyMCE
-                parent.tinymce.activeEditor.windowManager.getParams().setUrl(URL);
+                parent.tinymce.activeEditor.windowManager.getParams().oninsert(URL);
 
                 // close popup window
                 parent.tinymce.activeEditor.windowManager.close();

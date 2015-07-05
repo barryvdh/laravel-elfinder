@@ -112,28 +112,29 @@ You can use tinyMCE integration with the following route, which by default is `/
 In the TinyMCE init code, add the following line:
 
 ```javascript
-file_browser_callback : elFinderBrowser
+file_picker_callback : elFinderBrowser
 ```
 
 Then add the following function (change the `elfinder_url` to the correct path on your system):
 
 ```javascript
-function elFinderBrowser (field_name, url, type, win) {
-  tinymce.activeEditor.windowManager.open({
-    file: '<?= route('elfinder.tinymce4') ?>',// use an absolute path!
-    title: 'elFinder 2.0',
-    width: 900,
-    height: 450,
-    resizable: 'yes'
-  }, {
-    setUrl: function (url) {
-      win.document.getElementById(field_name).value = url;
-    }
-  });
-  return false;
+function elFinderBrowser(callback, value, meta) {
+    var request = "{{ action('\Barryvdh\Elfinder\ElfinderController@showTinyMCE4') }}";
+    tinymce.activeEditor.windowManager.open({
+        title: 'File Manager',
+        url: request,
+        width: 900,
+        height: 550,
+    }, {
+        oninsert: function (url) {
+            callback(url);
+        }
+    });
+    
+    return false;
 }
 ```
- 
+
 ### TinyMCE 3.x
 
 You can add tinyMCE integration with the following route (default: `/elfinder/tinymce`):
