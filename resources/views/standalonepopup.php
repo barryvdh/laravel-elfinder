@@ -45,7 +45,9 @@
                 getFileCallback: function (file) {
                     window.parent.processSelectedFile(file.path, '<?= $input_id?>');
                     parent.jQuery.colorbox.close();
-                }
+                },
+                resizable: false,
+                height: $(window).height() - 2
             }).elfinder('instance');
         });
     </script>

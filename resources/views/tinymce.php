@@ -69,7 +69,9 @@
                 url : '<?= route("elfinder.connector") ?>',  // connector URL
                 getFileCallback: function(file) { // editor callback
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
-                }
+                },
+                resizable: false,
+                height: $(window).height() - 2
             }).elfinder('instance');
         });
     </script>

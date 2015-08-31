@@ -31,7 +31,7 @@
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
-                customData: { 
+                customData: {
                     _token: '<?= csrf_token() ?>'
                 },
                 url : '<?= route("elfinder.connector") ?>'  // connector URL

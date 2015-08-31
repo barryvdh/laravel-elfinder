@@ -47,8 +47,11 @@
                 getFileCallback : function(file) {
                     window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
                     window.close();
-                }
+                },
+                resizable: false,
+                height: $(window).height() - 2
             }).elfinder('instance');
+
         });
     </script>
 </head>
