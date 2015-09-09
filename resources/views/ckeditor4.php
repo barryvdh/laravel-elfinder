@@ -32,6 +32,12 @@
             return (match && match.length > 1) ? match[1] : '' ;
         }
 
+        // Helper function to calculate elfinder element height
+        function getElfinderHeight() {
+            return $(window).height() - 2;
+        }
+
+        // Initialize elfinder
         $().ready(function() {
             var funcNum = getUrlParam('CKEditorFuncNum');
 
@@ -49,8 +55,13 @@
                     window.close();
                 },
                 resizable: false,
-                height: $(window).height() - 2
+                height: getElfinderHeight()
             }).elfinder('instance');
+
+            // Resize elfinder element when popup window is resized
+            $(window).on('resize', function() {
+                $('#elfinder').height(getElfinderHeight());
+            }).trigger('resize');
 
         });
     </script>
