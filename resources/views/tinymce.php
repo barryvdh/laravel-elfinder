@@ -57,6 +57,12 @@
 
         tinyMCEPopup.onInit.add(FileBrowserDialogue.init, FileBrowserDialogue);
 
+        // Helper function to calculate elfinder element height
+        function getElfinderHeight() {
+            return $(window).height() - 2;
+        }
+
+        // Initialize elfinder
         $().ready(function() {
             var elf = $('#elfinder').elfinder({
                 // set your elFinder options here
@@ -71,8 +77,13 @@
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
                 },
                 resizable: false,
-                height: $(window).height() - 2
+                height: getElfinderHeight()
             }).elfinder('instance');
+
+            // Resize elfinder element when popup window is resized
+            $(window).on('resize', function() {
+                $('#elfinder').height(getElfinderHeight());
+            }).trigger('resize');
         });
     </script>
 
