@@ -100,7 +100,7 @@ class ElfinderController extends Controller
     protected function getViewVars()
     {
         $dir = 'packages/barryvdh/' . $this->package;
-        $locale = $this->app->config->get('app.locale');
+        $locale = str_replace("-",  "_", $this->app->config->get('app.locale'));
         if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js")) {
             $locale = false;
         }
