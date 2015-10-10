@@ -19,7 +19,7 @@ class ElfinderController extends Controller
     {
         $this->app = $app;
     }
-        
+
     public function showIndex()
     {
         return $this->app['view']
@@ -52,6 +52,14 @@ class ElfinderController extends Controller
     {
         return $this->app['view']
             ->make($this->package . '::standalonepopup')
+            ->with($this->getViewVars())
+            ->with(compact('input_id'));
+    }
+
+    public function showImagePicker($input_id)
+    {
+        return $this->app['view']
+            ->make($this->package . '::imgpicker')
             ->with($this->getViewVars())
             ->with(compact('input_id'));
     }
