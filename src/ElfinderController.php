@@ -56,12 +56,12 @@ class ElfinderController extends Controller
             ->with(compact('input_id'));
     }
 
-    public function showImagePicker($input_id)
+    public function showFilePicker($input_id, $type = '')
     {
         return $this->app['view']
-            ->make($this->package . '::imgpicker')
+            ->make($this->package . '::filepicker')
             ->with($this->getViewVars())
-            ->with(compact('input_id'));
+            ->with(compact('input_id','type'));
     }
 
     public function showConnector()

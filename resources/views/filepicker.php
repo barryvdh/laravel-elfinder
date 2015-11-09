@@ -35,7 +35,7 @@
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
                 resizable: false,
                 ui: ['toolbar', 'path','stat'],
-                onlyMimes: ["image"],
+                onlyMimes: ["{!!type!!}"],
                 rememberLastDir : false,
                 height: 300,
                 defaultView: 'list',
