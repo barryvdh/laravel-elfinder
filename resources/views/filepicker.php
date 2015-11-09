@@ -23,7 +23,7 @@
     <!-- Include jQuery, jQuery UI, elFinder (REQUIRED) -->
 
     <?php
-    $mimeTypes = $mimeTypes = implode(',',array_map(function($t){return "'".$t."'";}, explode(',',$type)));
+    $mimeTypes = implode(',',array_map(function($t){return "'".$t."'";}, explode(',',$type)));
     ?>
 
     <script type="text/javascript">
@@ -33,7 +33,7 @@
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
-                customData: { 
+                customData: {
                     _token: '<?= csrf_token() ?>'
                 },
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
@@ -47,7 +47,7 @@
                     window.parent.processSelectedFile(file, '<?= $input_id?>');
                     console.log(file);
                 },
-                
+
                 uiOptions : {
                     // toolbar configuration
                     toolbar : [

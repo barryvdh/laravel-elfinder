@@ -1,8 +1,9 @@
 <?php namespace Barryvdh\Elfinder;
 
-use Illuminate\Routing\Controller;
-use Illuminate\Foundation\Application;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Foundation\Application;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Request;
 
 class ElfinderController extends Controller
 {
@@ -56,8 +57,9 @@ class ElfinderController extends Controller
             ->with(compact('input_id'));
     }
 
-    public function showFilePicker($input_id, $type = '')
+    public function showFilePicker($input_id)
     {
+        $type = Request::input('type');
         return $this->app['view']
             ->make($this->package . '::filepicker')
             ->with($this->getViewVars())
