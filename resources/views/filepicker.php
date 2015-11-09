@@ -22,6 +22,10 @@
     <?php } ?>
     <!-- Include jQuery, jQuery UI, elFinder (REQUIRED) -->
 
+    <?php
+    $mimeTypes = $mimeTypes = implode(',',array_map(function($t){return "'".$t."'";}, explode(',',$type)));
+    ?>
+
     <script type="text/javascript">
         $().ready(function () {
             var elf = $('#elfinder').elfinder({
@@ -35,7 +39,7 @@
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
                 resizable: false,
                 ui: ['toolbar', 'path','stat'],
-                onlyMimes: ["{!!type!!}"],
+                onlyMimes: [<?= $mimeTypes ?>],
                 rememberLastDir : false,
                 height: 300,
                 defaultView: 'list',
