@@ -1,8 +1,9 @@
 <?php namespace Barryvdh\Elfinder;
 
-use Illuminate\Routing\Controller;
-use Illuminate\Foundation\Application;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Foundation\Application;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Request;
 
 class ElfinderController extends Controller
 {
@@ -19,7 +20,7 @@ class ElfinderController extends Controller
     {
         $this->app = $app;
     }
-        
+
     public function showIndex()
     {
         return $this->app['view']
@@ -54,6 +55,15 @@ class ElfinderController extends Controller
             ->make($this->package . '::standalonepopup')
             ->with($this->getViewVars())
             ->with(compact('input_id'));
+    }
+
+    public function showFilePicker($input_id)
+    {
+        $type = Request::input('type');
+        return $this->app['view']
+            ->make($this->package . '::filepicker')
+            ->with($this->getViewVars())
+            ->with(compact('input_id','type'));
     }
 
     public function showConnector()
@@ -100,7 +110,7 @@ class ElfinderController extends Controller
     protected function getViewVars()
     {
         $dir = 'packages/barryvdh/' . $this->package;
-        $locale = $this->app->config->get('app.locale');
+        $locale = str_replace("-",  "_", $this->app->config->get('app.locale'));
         if (!file_exists($this->app['path.public'] . "/$dir/js/i18n/elfinder.$locale.js")) {
             $locale = false;
         }
