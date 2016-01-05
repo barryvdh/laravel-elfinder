@@ -1,7 +1,7 @@
 $(document).on('click','.popup_selector',function (event) {
     event.preventDefault();
     var updateID = $(this).attr('data-inputid'); // Btn id clicked
-    var elfinderUrl = '/elfinder/popup/';
+    var elfinderUrl = $(this).attr('data-popup') ? $(this).attr('data-popup') : '/elfinder/popup';
 
     // trigger the reveal modal with elfinder inside
     var triggerUrl = elfinderUrl + updateID;
