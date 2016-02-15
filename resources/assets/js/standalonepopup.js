@@ -16,5 +16,5 @@ $(document).on('click','.popup_selector',function (event) {
 });
 // function to update the file selected by elfinder
 function processSelectedFile(filePath, requestingField) {
-    $('#' + requestingField).val(filePath);
+    $('#' + requestingField).val(filePath).trigger('change');
 }
