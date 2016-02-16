@@ -40,7 +40,8 @@
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
                 customData: { 
-                    _token: '<?= csrf_token() ?>'
+                    _token: '<?= csrf_token() ?>',
+                    guardDir: '<?= $guardDir ?>'
                 },
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
                 getFileCallback : function(file) {

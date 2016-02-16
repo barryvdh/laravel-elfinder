@@ -31,7 +31,8 @@
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
                 customData: { 
-                    _token: '<?= csrf_token() ?>'
+                    _token: '<?= csrf_token() ?>',
+                    guardDir: '<?= $guardDir ?>'
                 },
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
                 dialog: {width: 900, modal: true, title: 'Select a file'},
