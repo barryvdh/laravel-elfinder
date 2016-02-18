@@ -68,38 +68,35 @@ class ElfinderController extends Controller
 
     public function showConnector()
     {
-        $roots = $this->app->config->get('elfinder.roots', []);
-        if (empty($roots)) {
-            $dirs = (array) $this->app['config']->get('elfinder.dir', []);
-            foreach ($dirs as $dir) {
-                $roots[] = [
-                    'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => public_path($dir), // path to files (REQUIRED)
-                    'URL' => url($dir), // URL to files (REQUIRED)
-                    'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
-                ];
-            }
-
-            $disks = (array) $this->app['config']->get('elfinder.disks', []);
-            foreach ($disks as $key => $root) {
-                if (is_string($root)) {
-                    $key = $root;
-                    $root = [];
-                }
-                $disk = app('filesystem')->disk($key);
-                if ($disk instanceof FilesystemAdapter) {
-                    $defaults = [
-                        'driver' => 'Flysystem',
-                        'filesystem' => $disk->getDriver(),
-                        'alias' => $key,
-                    ];
-                    $roots[] = array_merge($defaults, $root);
-                }
-            }
+        $roots = (array) $this->app->config->get('elfinder.roots', []);
+        $dirs = (array) $this->app['config']->get('elfinder.dir', []);
+        foreach ($dirs as $dir) {
+            $roots = array_merge([
+                'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
+                'path' => public_path($dir), // path to files (REQUIRED)
+                'URL' => url($dir), // URL to files (REQUIRED)
+                'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
+            ], $roots);
         }
 
+        $disks = (array) $this->app['config']->get('elfinder.disks', []);
+        foreach ($disks as $key => $root) {
+            if (is_string($root)) {
+                $key = $root;
+                $root = [];
+            }
+            $disk = app('filesystem')->disk($key);
+            if ($disk instanceof FilesystemAdapter) {
+                $defaults = [
+                    'driver' => 'Flysystem',
+                    'filesystem' => $disk->getDriver(),
+                    'alias' => $key,
+                ];
+                $roots[] = array_merge($defaults, $root);
+            }
+        }
         $opts = $this->app->config->get('elfinder.options', array());
-        $opts = array_merge(['roots' => $roots], $opts);
+        $opts = array_merge(['roots' => [$roots]], $opts);
 
         // run elFinder
         $connector = new Connector(new \elFinder($opts));
