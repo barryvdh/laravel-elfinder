@@ -1,5 +1,6 @@
 <?php namespace Barryvdh\Elfinder;
 
+use Barryvdh\Elfinder\Session\LaravelSession;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Controller;
@@ -98,8 +99,15 @@ class ElfinderController extends Controller
             }
         }
 
+        if (app()->bound('session.store')) {
+            $sessionStore = app('session.store');
+            $session = new LaravelSession($sessionStore);
+        } else {
+            $session = null;
+        }
+
         $opts = $this->app->config->get('elfinder.options', array());
-        $opts = array_merge(['roots' => $roots], $opts);
+        $opts = array_merge(['roots' => $roots, 'session' => $session], $opts);
 
         // run elFinder
         $connector = new Connector(new \elFinder($opts));
