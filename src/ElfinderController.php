@@ -117,11 +117,13 @@ class ElfinderController extends Controller
             $session = null;
         }
 
-        $configOptions = $this->app->config->get('elfinder.options', array());
-        foreach ($roots as &$root) {
-            $root = array_merge($root, $configOptions);
+        $rootOptions = $this->app->config->get('elfinder.root_options', array());
+        foreach ($roots as $key => $root) {
+            $roots[$key] = array_merge($rootOptions, $root);
         }
-        $opts = ['roots' => $roots, 'session' => $session];
+
+        $opts = $this->app->config->get('elfinder.options', array());
+        $opts = array_merge($opts, ['roots' => $roots, 'session' => $session]);
 
         // run elFinder
         $connector = new Connector(new \elFinder($opts));
