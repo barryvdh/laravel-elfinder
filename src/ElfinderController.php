@@ -5,6 +5,9 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Request;
+use League\Flysystem\Cached\CachedAdapter;
+use League\Flysystem\Cached\Storage\Memory;
+use League\Flysystem\Filesystem;
 
 class ElfinderController extends Controller
 {
@@ -89,9 +92,17 @@ class ElfinderController extends Controller
                 }
                 $disk = app('filesystem')->disk($key);
                 if ($disk instanceof FilesystemAdapter) {
+                    $filesystem = $disk->getDriver();
+                    if (method_exists($filesystem, 'getAdapter')) {
+                        $adapter = $filesystem->getAdapter();
+                        if ( ! $adapter instanceof CachedAdapter) {
+                            $adapter = new CachedAdapter($adapter, new Memory());
+                            $filesystem = new Filesystem($adapter);
+                        }
+                    }
                     $defaults = [
                         'driver' => 'Flysystem',
-                        'filesystem' => $disk->getDriver(),
+                        'filesystem' => $filesystem,
                         'alias' => $key,
                     ];
                     $roots[] = array_merge($defaults, $root);
