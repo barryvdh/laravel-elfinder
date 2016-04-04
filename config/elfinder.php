@@ -77,5 +77,18 @@ return array(
     */
 
     'options' => array(),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Root Options
+    |--------------------------------------------------------------------------
+    |
+    | These options are merged, together with every root by default.
+    | See https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options-2.1#root-options
+    |
+    */
+    'root_options' => array(
+
+    ),
 
 );
