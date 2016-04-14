@@ -92,17 +92,9 @@ class ElfinderController extends Controller
                 }
                 $disk = app('filesystem')->disk($key);
                 if ($disk instanceof FilesystemAdapter) {
-                    $filesystem = $disk->getDriver();
-                    if (method_exists($filesystem, 'getAdapter')) {
-                        $adapter = $filesystem->getAdapter();
-                        if ( ! $adapter instanceof CachedAdapter) {
-                            $adapter = new CachedAdapter($adapter, new Memory());
-                            $filesystem = new Filesystem($adapter);
-                        }
-                    }
                     $defaults = [
                         'driver' => 'Flysystem',
-                        'filesystem' => $filesystem,
+                        'filesystem' => $disk->getDriver(),
                         'alias' => $key,
                     ];
                     $roots[] = array_merge($defaults, $root);
