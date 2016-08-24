@@ -50,7 +50,7 @@ class ElfinderServiceProvider extends ServiceProvider {
 		}
 
         $config = $this->app['config']->get('elfinder.route', []);
-        $config['namespace'] = 'Barryvdh\Elfinder';
+        $config['namespace'] = __NAMESPACE__;
 
         $router->group($config, function($router)
         {

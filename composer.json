@@ -19,7 +19,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Charvet\\Elfinder\\": "src/"
+            "Barryvdh\\Elfinder\\": "src/",
+            "Barryvdh\\Elfinder\\Ext\\": "elFinderExt"
         }
     },
     "extra": {
