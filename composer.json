@@ -1,5 +1,5 @@
 {
-    "name": "charvet/laravel-elfinder",
+    "name": "barryvdh/laravel-elfinder",
     "keywords": ["laravel", "elfinder", "tinymce", "filebrowser"],
     "description": "A Laravel Package to integrate elFinder 2",
     "license": "MIT",
