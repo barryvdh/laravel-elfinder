@@ -45,7 +45,9 @@ class Connector extends \elFinderConnector {
 
         if (isset($data['pointer'])) {
             $this->response = new StreamedResponse(function () use($data) {
-                    rewind($data['pointer']);
+                    if (stream_get_meta_data($data['pointer'])['seekable']) {
+                        rewind($data['pointer']);
+                    }
                     fpassthru($data['pointer']);
                     if (!empty($data['volume'])) {
                         $data['volume']->close($data['pointer'], $data['info']['hash']);
