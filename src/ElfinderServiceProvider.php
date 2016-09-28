@@ -54,7 +54,7 @@ class ElfinderServiceProvider extends ServiceProvider {
 
         $router->group($config, function($router)
         {
-            $router->get('/', 'ElfinderController@showIndex');
+            $router->get('/',  ['as' => 'elfinder.index', 'uses' =>'ElfinderController@showIndex']);
             $router->any('connector', ['as' => 'elfinder.connector', 'uses' => 'ElfinderController@showConnector']);
             $router->get('popup/{input_id}', ['as' => 'elfinder.popup', 'uses' => 'ElfinderController@showPopup']);
             $router->get('filepicker/{input_id}', ['as' => 'elfinder.filepicker', 'uses' => 'ElfinderController@showFilePicker']);
