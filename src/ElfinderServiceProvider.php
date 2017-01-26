@@ -23,7 +23,7 @@ class ElfinderServiceProvider extends ServiceProvider {
         $this->mergeConfigFrom($configPath, 'elfinder');
         $this->publishes([$configPath => config_path('elfinder.php')], 'config');
 
-        $this->singleton('command.elfinder.publish', function($app)
+        $this->app->singleton('command.elfinder.publish', function($app)
         {
 			$publicPath = $app['path.public'];
             return new Console\PublishCommand($app['files'], $publicPath);
