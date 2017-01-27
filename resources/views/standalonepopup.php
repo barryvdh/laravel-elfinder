@@ -12,6 +12,7 @@
     <!-- elFinder CSS (REQUIRED) -->
     <link rel="stylesheet" type="text/css" href="<?= asset($dir . '/css/elfinder.min.css') ?>">
     <link rel="stylesheet" type="text/css" href="<?= asset($dir . '/css/theme.css') ?>">
+    <link rel="stylesheet" type="text/css" href="<?= asset($dir.'/css/popup.css') ?>">
 
     <!-- elFinder JS (REQUIRED) -->
     <script src="<?= asset($dir . '/js/elfinder.min.js') ?>"></script>
@@ -24,13 +25,19 @@
     <!-- Include jQuery, jQuery UI, elFinder (REQUIRED) -->
 
     <script type="text/javascript">
+        // Helper function to calculate elfinder element height
+        function getElfinderHeight() {
+            return $(window).height() - 2;
+        }
+
+        // Initialize elfinder
         $().ready(function () {
             var elf = $('#elfinder').elfinder({
                 // set your elFinder options here
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
-                customData: { 
+                customData: {
                     _token: '<?= csrf_token() ?>'
                 },
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
@@ -45,8 +52,15 @@
                 getFileCallback: function (file) {
                     window.parent.processSelectedFile(file.path, '<?= $input_id?>');
                     parent.jQuery.colorbox.close();
-                }
+                },
+                resizable: false,
+                height: getElfinderHeight()
             }).elfinder('instance');
+
+            // Resize elfinder element when popup window is resized
+            $(window).on('resize', function() {
+                $('#elfinder').height(getElfinderHeight());
+            }).trigger('resize');
         });
     </script>
 

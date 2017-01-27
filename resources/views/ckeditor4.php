@@ -12,6 +12,7 @@
     <!-- elFinder CSS (REQUIRED) -->
     <link rel="stylesheet" type="text/css" href="<?= asset($dir.'/css/elfinder.min.css') ?>">
     <link rel="stylesheet" type="text/css" href="<?= asset($dir.'/css/theme.css') ?>">
+    <link rel="stylesheet" type="text/css" href="<?= asset($dir.'/css/popup.css') ?>">
 
     <!-- elFinder JS (REQUIRED) -->
     <script src="<?= asset($dir.'/js/elfinder.min.js') ?>"></script>
@@ -20,7 +21,7 @@
         <!-- elFinder translation (OPTIONAL) -->
         <script src="<?= asset($dir."/js/i18n/elfinder.$locale.js") ?>"></script>
     <?php } ?>
-    
+
     <!-- elFinder initialization (REQUIRED) -->
     <script type="text/javascript" charset="utf-8">
         // Helper function to get parameters from the query string.
@@ -31,6 +32,12 @@
             return (match && match.length > 1) ? match[1] : '' ;
         }
 
+        // Helper function to calculate elfinder element height
+        function getElfinderHeight() {
+            return $(window).height() - 2;
+        }
+
+        // Initialize elfinder
         $().ready(function() {
             var funcNum = getUrlParam('CKEditorFuncNum');
 
@@ -39,7 +46,7 @@
                 <?php if($locale){ ?>
                     lang: '<?= $locale ?>', // locale
                 <?php } ?>
-                customData: { 
+                customData: {
                     _token: '<?= csrf_token() ?>'
                 },
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
@@ -47,8 +54,16 @@
                 getFileCallback : function(file) {
                     window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
                     window.close();
-                }
+                },
+                resizable: false,
+                height: getElfinderHeight()
             }).elfinder('instance');
+
+            // Resize elfinder element when popup window is resized
+            $(window).on('resize', function() {
+                $('#elfinder').height(getElfinderHeight());
+            }).trigger('resize');
+
         });
     </script>
 </head>
