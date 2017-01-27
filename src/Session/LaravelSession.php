@@ -46,7 +46,7 @@ class LaravelSession implements elFinderSessionInterface
      */
     public function set($key, $data)
     {
-        $this->store->set($key, $data);
+        $this->store->put($key, $data);
 
         return $this;
     }
