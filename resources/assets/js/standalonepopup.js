@@ -1,10 +1,11 @@
 $(document).on('click','.popup_selector',function (event) {
     event.preventDefault();
     var updateID = $(this).attr('data-inputid'); // Btn id clicked
+    var guardDir = $(this).attr('data-guarddir');
     var elfinderUrl = '/elfinder/popup/';
 
     // trigger the reveal modal with elfinder inside
-    var triggerUrl = elfinderUrl + updateID;
+    var triggerUrl = elfinderUrl + updateID + "?guardDir=" + guardDir;
     $.colorbox({
         href: triggerUrl,
         fastIframe: true,

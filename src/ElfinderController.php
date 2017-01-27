@@ -78,8 +78,8 @@ class ElfinderController extends Controller
             foreach ($dirs as $dir) {
                 $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => public_path($dir), // path to files (REQUIRED)
-                    'URL' => url($dir), // URL to files (REQUIRED)
+                    'path' => Request::get('guardDir') ? public_path($dir . '/' . Request::get('guardDir')) : public_path($dir), // path to files (REQUIRED)
+                    'URL' => Request::get('guardDir') ? url($dir . '/' . Request::get('guardDir')) : url($dir), // path to files (REQUIRED)
                     'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                 ];
             }
@@ -131,6 +131,8 @@ class ElfinderController extends Controller
             $locale = false;
         }
         $csrf = true;
-        return compact('dir', 'locale', 'csrf');
+        $guardDir = $this->app['request']->get('guardDir', null);
+
+        return compact('dir', 'locale', 'csrf', 'guardDir');
     }
 }
