@@ -18,7 +18,7 @@ Require this package with Composer
     
     composer require barryvdh/laravel-elfinder
     
-Add the ServiceProvider to the providers array in app/config/app.php
+Add the ServiceProvider to the providers array in config/app.php
 
 ```php
 Barryvdh\Elfinder\ElfinderServiceProvider::class
