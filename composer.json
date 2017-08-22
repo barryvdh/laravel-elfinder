@@ -1,5 +1,5 @@
 {
-    "name": "barryvdh/laravel-elfinder",
+    "name": "hungnm144/laravel-elfinder",
     "keywords": ["laravel", "elfinder", "tinymce", "filebrowser"],
     "description": "A Laravel Package to integrate elFinder 2",
     "license": "MIT",
@@ -10,9 +10,9 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "illuminate/support": "5.0.x|5.1.x|5.2.x|5.3.x|5.4.x",
-        "studio-42/elfinder": "~2.1.10",
+        "php": ">=7.0.0",
+        "illuminate/support": "5.0.x|5.1.x|5.2.x|5.3.x|5.4.x|5.5.x",
+        "studio-42/elfinder": "2.1.x@dev",
         "barryvdh/elfinder-flysystem-driver": "^0.1.4|^0.2",
         "league/flysystem": "^1.0",
         "league/flysystem-cached-adapter": "^1.0"
