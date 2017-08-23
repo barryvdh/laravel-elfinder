@@ -49,7 +49,7 @@ class PublishCommand extends Command {
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
 
         $package = 'barryvdh/elfinder';
