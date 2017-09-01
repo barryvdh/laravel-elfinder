@@ -41,9 +41,12 @@ class ElfinderController extends Controller
 
     public function showTinyMCE4()
     {
+        $type = Request::input('type');
+        $mimeTypes = implode(',',array_map(function($t){return "'".$t."'";}, explode(',',$type)));
         return $this->app['view']
             ->make($this->package . '::tinymce4')
-            ->with($this->getViewVars());
+            ->with($this->getViewVars())
+            ->with(compact('input_id','type','mimeTypes'));
     }
 
     public function showCKeditor4()
