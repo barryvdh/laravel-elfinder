@@ -25,6 +25,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "0.3-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Barryvdh\\Elfinder\\ElfinderServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev"
