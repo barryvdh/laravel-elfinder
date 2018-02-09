@@ -76,11 +76,11 @@ class ElfinderController extends Controller
         $roots = $this->app->config->get('elfinder.roots', []);
         if (empty($roots)) {
             $dirs = (array) $this->app['config']->get('elfinder.dir', []);
-            foreach ($dirs as $dir) {
+            foreach ($dirs as $key_dir=>$value_dir) {
                 $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => $dir, // path to files (REQUIRED)
-                    'URL' => url($dir), // URL to files (REQUIRED)
+                    'path' => $key_dir, // path to files (REQUIRED)
+                    'URL' => url($value_dir), // URL to files (REQUIRED)
                     'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                 ];
             }
