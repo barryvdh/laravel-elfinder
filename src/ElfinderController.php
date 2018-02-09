@@ -79,7 +79,7 @@ class ElfinderController extends Controller
             foreach ($dirs as $dir) {
                 $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => public_path($dir), // path to files (REQUIRED)
+                    'path' => $dir, // path to files (REQUIRED)
                     'URL' => url($dir), // URL to files (REQUIRED)
                     'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                 ];
