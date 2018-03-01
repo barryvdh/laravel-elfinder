@@ -1,5 +1,5 @@
 {
-    "name": "mngzir/laravel-elfinder",
+    "name": "araxteam/laravel-elfinder",
     "keywords": ["laravel", "elfinder", "tinymce", "filebrowser"],
     "description": "A Laravel Package to integrate elFinder 2",
     "license": "MIT",
@@ -7,6 +7,10 @@
         {
             "name": "Barry vd. Heuvel",
             "email": "barryvdh@gmail.com"
+        },
+        {
+            "name": "Morteza Najaf Goli Zadeh",
+            "email": "mortazangz@gmail.com"
         }
     ],
     "require": {
