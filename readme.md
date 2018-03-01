@@ -16,7 +16,7 @@ Files are updated from the a seperate [build repository](https://github.com/barr
 
 Require this package with Composer
     
-    composer require barryvdh/laravel-elfinder
+    composer require araxteam/laravel-elfinder
     
 Add the ServiceProvider to the providers array in app/config/app.php
 
