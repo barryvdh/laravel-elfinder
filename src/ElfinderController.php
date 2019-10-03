@@ -46,6 +46,13 @@ class ElfinderController extends Controller
             ->with($this->getViewVars());
     }
 
+    public function showTinyMCE5()
+    {
+        return $this->app['view']
+            ->make($this->package . '::tinymce5')
+            ->with($this->getViewVars());
+    }
+
     public function showCKeditor4()
     {
         return $this->app['view']
