@@ -118,7 +118,7 @@ route('elfinder.tinymce5');
 In the TinyMCE init code, add the following line:
 
 ```javascript
-file_picker_callback : elFinderBrowser
+file_browser_callback : elFinderBrowser
 ```
 
 Then add the following function (change the `elfinder_url` to the correct path on your system):
