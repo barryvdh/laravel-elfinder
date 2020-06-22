@@ -26,7 +26,7 @@ return array(
     |    ]
     */
     'disks' => [
-
+        'local',
     ],
 
     /*
