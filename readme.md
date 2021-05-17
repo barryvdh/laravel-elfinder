@@ -14,10 +14,17 @@ Files are updated from the a seperate [build repository](https://github.com/barr
 
 ### Installation
 
-Require this package with Composer
+Begin by installing this package through Composer. Edit your project's composer.json file to require araxteam/laravel-elfinder
     
-    composer require barryvdh/laravel-elfinder
+    "require": {
+    	"araxteam/laravel-elfinder": "dev-master"
+    }
     
+    
+Next, update Composer from the Terminal:
+
+composer update
+
 Add the ServiceProvider to the providers array in app/config/app.php
 
 ```php
