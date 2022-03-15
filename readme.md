@@ -12,6 +12,8 @@ Files are updated from the a seperate [build repository](https://github.com/barr
 
 > Note: Use `php artisan elfinder:publish` instead of the old publish command, for future changes!
 
+![image](https://user-images.githubusercontent.com/973269/158461690-2e6431a1-3a36-43f2-8219-0a21cee85ffc.png)
+
 ### Installation
 
 Require this package with Composer
