@@ -10,7 +10,7 @@ return array(
     | The dir where to store the images (relative from public)
     |
     */
-    'dir' => ['files'],
+    'dir' => ['storage'],
 
     /*
     |--------------------------------------------------------------------------
