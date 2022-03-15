@@ -104,12 +104,15 @@ class ElfinderController extends Controller
                         'driver' => 'Flysystem',
                         'filesystem' => $disk->getDriver(),
                         'alias' => $key,
-                        'URLCallback' => function($path) use ($disk) {
-                            return $disk->url($path);
-                        },
                         'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                     ];
-                    $roots[] = array_merge($defaults, $root);
+                    $root = array_merge($defaults, $root);
+                    if (!isset($root['URL'])) {
+                        $root['URLCallback'] = function($path) use ($disk) {
+                            return $disk->url($path);
+                        };
+                    }
+                    $roots[] = $root;
                 }
             }
         }
