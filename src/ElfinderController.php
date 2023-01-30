@@ -1,28 +1,18 @@
 <?php namespace Barryvdh\Elfinder;
 
 use Barryvdh\Elfinder\Session\LaravelSession;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Foundation\Application;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Request;
-use League\Flysystem\Cached\CachedAdapter;
-use League\Flysystem\Cached\Storage\Memory;
-use League\Flysystem\Filesystem;
 
 class ElfinderController extends Controller
 {
     protected $package = 'elfinder';
 
-    /**
-     * The application instance.
-     *
-     * @var \Illuminate\Foundation\Application
-     */
-    protected $app;
-
-    public function __construct(Application $app)
+    public function __construct(protected Application $app)
     {
-        $this->app = $app;
     }
 
     public function showIndex()
@@ -86,8 +76,8 @@ class ElfinderController extends Controller
             foreach ($dirs as $dir) {
                 $roots[] = [
                     'driver' => 'LocalFileSystem', // driver for accessing file system (REQUIRED)
-                    'path' => public_path($dir), // path to files (REQUIRED)
-                    'URL' => url($dir), // URL to files (REQUIRED)
+                    'path' => $this->app->publicPath($dir), // path to files (REQUIRED)
+                    'URL' => $this->app->make(UrlGenerator::class)->to($dir), // URL to files (REQUIRED)
                     'accessControl' => $this->app->config->get('elfinder.access') // filter callback (OPTIONAL)
                 ];
             }
@@ -98,7 +88,7 @@ class ElfinderController extends Controller
                     $key = $root;
                     $root = [];
                 }
-                $disk = app('filesystem')->disk($key);
+                $disk = $this->app->make('filesystem')->disk($key);
                 if ($disk instanceof FilesystemAdapter) {
                     $defaults = [
                         'driver' => 'Flysystem',
@@ -117,8 +107,8 @@ class ElfinderController extends Controller
             }
         }
 
-        if (app()->bound('session.store')) {
-            $sessionStore = app('session.store');
+        if ($this->app->bound('session.store')) {
+            $sessionStore = $this->app->make('session.store');
             $session = new LaravelSession($sessionStore);
         } else {
             $session = null;
