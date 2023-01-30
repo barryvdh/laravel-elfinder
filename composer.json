@@ -22,7 +22,7 @@
         "illuminate/filesystem": "^9.0|^10.0",
         "illuminate/routing": "^9.0|^10.0",
         "illuminate/support": "^9.0|^10.0",
-        "studio-42/elfinder": "^2.1.49",
+        "studio-42/elfinder": "^2.1.61",
         "symfony/http-foundation": "^6.0"
     },
     "autoload": {
