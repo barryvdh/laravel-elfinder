@@ -1,16 +1,12 @@
 <?php namespace Barryvdh\Elfinder\Session;
 
 use elFinderSessionInterface;
-use Illuminate\Session\Store;
+use Illuminate\Contracts\Session\Session;
 
 class LaravelSession implements elFinderSessionInterface
 {
-    /** @var Store  */
-    protected $store;
-
-    public function __construct(Store $store)
+    public function __construct(protected Session $store)
     {
-        $this->store = $store;
     }
 
     /**
