@@ -21,7 +21,7 @@ class ElfinderServiceProvider extends ServiceProvider {
 	{
         $configPath = __DIR__ . '/../config/elfinder.php';
         $this->mergeConfigFrom($configPath, 'elfinder');
-        $this->publishes([$configPath => config_path('elfinder.php')], 'config');
+        $this->publishes([$configPath => $this->app->configPath('elfinder.php')], 'config');
 
         $this->app->singleton('command.elfinder.publish', function($app)
         {
@@ -42,7 +42,7 @@ class ElfinderServiceProvider extends ServiceProvider {
         $viewPath = __DIR__.'/../resources/views';
         $this->loadViewsFrom($viewPath, 'elfinder');
         $this->publishes([
-            $viewPath => base_path('resources/views/vendor/elfinder'),
+            $viewPath => $this->app->resourcePath('views/vendor/elfinder'),
         ], 'views');
 
         if (!defined('ELFINDER_IMG_PARENT_URL')) {
