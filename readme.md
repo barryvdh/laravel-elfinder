@@ -6,7 +6,7 @@
 [![Latest Stable Version](https://poser.pugx.org/barryvdh/laravel-elfinder/version.png)](https://packagist.org/packages/barryvdh/laravel-elfinder)
 [![Total Downloads](https://poser.pugx.org/barryvdh/laravel-elfinder/d/total.png)](https://packagist.org/packages/barryvdh/laravel-elfinder)
 
-This packages integrates [elFinder 2.1](https://github.com/Studio-42/elFinder/tree/2.1), 
+This packages integrates [elFinder 2.1.62](https://github.com/Studio-42/elFinder/tree/2.1.62), 
 by making the php files available with Composer (+autoloading) and the assets with a publish command. It also provides some example views for standalone, tinymce and ckeditor.
 Files are updated from the a seperate [build repository](https://github.com/barryvdh/elfinder-builds)
 
