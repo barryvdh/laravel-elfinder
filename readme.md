@@ -20,11 +20,6 @@ Require this package with Composer
     
     composer require barryvdh/laravel-elfinder
     
-Add the ServiceProvider to the providers array in app/config/app.php
-
-```php
-Barryvdh\Elfinder\ElfinderServiceProvider::class
-```
 
 You need to copy the assets to the public folder, using the following artisan command:
 
