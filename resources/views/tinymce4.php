@@ -37,7 +37,8 @@
             }
 
             $().ready(function() {
-                var elf = $('#elfinder').elfinder({
+
+                var defaultElfConfig = {
                     // set your elFinder options here
                     <?php if($locale){ ?>
                         lang: '<?= $locale ?>', // locale
@@ -50,7 +51,11 @@
                     getFileCallback: function(file) { // editor callback
                         FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
                     }
-                }).elfinder('instance');
+                };
+
+                var overrideConfig = <?= json_encode(config('elfinder.client_options')) ?>;
+
+                var elf = $('#elfinder').elfinder(Object.assign(defaultElfConfig, overrideConfig)).elfinder('instance');
             });
         </script>
     </head>

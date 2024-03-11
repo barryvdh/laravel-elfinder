@@ -34,7 +34,7 @@
             $().ready(function() {
                 var funcNum = getUrlParam('CKEditorFuncNum');
 
-                var elf = $('#elfinder').elfinder({
+                var defaultElfConfig = {
                     // set your elFinder options here
                     @if($locale)
                         lang: '{{ $locale }}', // locale
@@ -48,7 +48,11 @@
                         window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
                         window.close();
                     }
-                }).elfinder('instance');
+                };
+
+                var overrideConfig = @json(config('elfinder.client_options'));
+
+                var elf = $('#elfinder').elfinder(Object.assign(defaultElfConfig, overrideConfig)).elfinder('instance');
             });
         </script>
     </head>
