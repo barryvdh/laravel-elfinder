@@ -133,7 +133,8 @@ class ElfinderController extends Controller
         $opts = array_merge($opts, ['roots' => $roots, 'session' => $session]);
 
         // run elFinder
-        $connector = new Connector(new \elFinder($opts));
+        $elFinderClass = $this->app->config->get('elfinder.elFinder_class', '\\elFinder');
+        $connector = new Connector(new $elFinderClass($opts));
         $connector->run();
         return $connector->getResponse();
     }
