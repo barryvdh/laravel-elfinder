@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^8.1",
-        "illuminate/support": "^9|^10|^11.0",
+        "illuminate/support": "^9|^10|^11.0|^12.0",
         "studio-42/elfinder": "~2.1.62",
         "barryvdh/elfinder-flysystem-driver": "^0.4.2|^0.5"
     },
