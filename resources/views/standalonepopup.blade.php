@@ -24,7 +24,8 @@
 
         <script type="text/javascript">
             $().ready(function () {
-                var elf = $('#elfinder').elfinder({
+
+                var defaultElfConfig = {
                     // set your elFinder options here
                     @if($locale)
                         lang: '{{ $locale }}', // locale
@@ -45,7 +46,11 @@
                         window.parent.processSelectedFile(file.path, '{{ $input_id  }}');
                         parent.jQuery.colorbox.close();
                     }
-                }).elfinder('instance');
+                };
+
+                var overrideConfig = @json(config('elfinder.client_options'));
+
+                var elf = $('#elfinder').elfinder(Object.assign(defaultElfConfig, overrideConfig)).elfinder('instance');
             });
         </script>
 

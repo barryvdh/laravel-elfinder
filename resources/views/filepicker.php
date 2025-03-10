@@ -24,7 +24,8 @@
 
         <script type="text/javascript">
             $().ready(function () {
-                var elf = $('#elfinder').elfinder({
+
+                var defaultElfConfig = {
                     // set your elFinder options here
                     <?php if($locale){ ?>
                         lang: '<?= $locale ?>', // locale
@@ -39,7 +40,7 @@
                     onlyMimes: [<?= $mimeTypes ?>],
                     rememberLastDir : false,
                     height: 300,
-                    defaultView: 'list',
+                    defaultView: 'list'
                     getFileCallback: function (file) {
                         window.parent.processSelectedFile(file, '<?= $input_id?>');
                         console.log(file);
@@ -69,7 +70,11 @@
                             oldSchool : false
                         }
                     }
-                }).elfinder('instance');
+                };
+
+                var overrideConfig = <?= json_encode(config('elfinder.client_options')) ?>;
+
+                var elf = $('#elfinder').elfinder(Object.assign(defaultElfConfig, overrideConfig)).elfinder('instance');
             });
         </script>
 
