@@ -8,7 +8,7 @@
 
 This packages integrates [elFinder](https://github.com/Studio-42/elFinder), 
 by making the php files available with Composer (+autoloading) and the assets with a publish command. It also provides some example views for standalone, tinymce and ckeditor.
-Files are updated from the a seperate [build repository](https://github.com/barryvdh/elfinder-builds)
+Files are updated from the a separate [build repository](https://github.com/barryvdh/elfinder-builds)
 
 > Note: Use `php artisan elfinder:publish` instead of the old publish command, for future changes!
 
