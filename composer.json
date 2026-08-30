@@ -25,10 +25,21 @@
         "studio-42/elfinder": "~2.1.62",
         "symfony/http-foundation": "^6.0|^7.0|^8.0"
     },
+    "require-dev": {
+        "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0"
+    },
     "autoload": {
         "psr-4": {
             "Barryvdh\\Elfinder\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Barryvdh\\Elfinder\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
     },
     "extra": {
         "branch-alias": {

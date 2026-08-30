@@ -2,6 +2,7 @@
 
 ### For Laravel 8.x and older, please use the latest 0.4 version.
 
+[![Tests](https://github.com/barryvdh/laravel-elfinder/actions/workflows/tests.yml/badge.svg)](https://github.com/barryvdh/laravel-elfinder/actions/workflows/tests.yml)
 [![Packagist License](https://poser.pugx.org/barryvdh/laravel-elfinder/license.png)](http://choosealicense.com/licenses/mit/)
 [![Latest Stable Version](https://poser.pugx.org/barryvdh/laravel-elfinder/version.png)](https://packagist.org/packages/barryvdh/laravel-elfinder)
 [![Total Downloads](https://poser.pugx.org/barryvdh/laravel-elfinder/d/total.png)](https://packagist.org/packages/barryvdh/laravel-elfinder)
@@ -53,6 +54,12 @@ the assets:
 ```
 
 `$dir` is the publish directory, relative to the public path.
+
+### Tests
+
+The test suite runs against Laravel 9 - 13 with [Testbench](https://packages.tools/testbench.html):
+
+    composer test
 
 ### Using Filesystem disks
 

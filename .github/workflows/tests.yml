@@ -1,0 +1,58 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4']
+        laravel: [9, 10, 11, 12, 13]
+        include:
+          - laravel: 9
+            testbench: ^7.0
+          - laravel: 10
+            testbench: ^8.0
+          - laravel: 11
+            testbench: ^9.0
+          - laravel: 12
+            testbench: ^10.0
+          - laravel: 13
+            testbench: ^11.0
+        exclude:
+          # Laravel 9 supports PHP 8.0 - 8.2, 10 supports 8.1 - 8.3,
+          # 11 and 12 support 8.2+, and 13 supports 8.3+.
+          - { laravel: 9, php: '8.3' }
+          - { laravel: 9, php: '8.4' }
+          - { laravel: 10, php: '8.4' }
+          - { laravel: 11, php: '8.1' }
+          - { laravel: 12, php: '8.1' }
+          - { laravel: 13, php: '8.1' }
+          - { laravel: 13, php: '8.2' }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, gd, zip
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer require --no-interaction --no-update "illuminate/support:^${{ matrix.laravel }}.0"
+          composer require --dev --no-interaction --no-update "orchestra/testbench:${{ matrix.testbench }}"
+          composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests
+        run: vendor/bin/phpunit
