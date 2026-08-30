@@ -44,6 +44,16 @@ You can override the default views by copying the resources/views folder. You ca
 
     php artisan vendor:publish --provider='Barryvdh\Elfinder\ElfinderServiceProvider' --tag=views
 
+The views link to the published assets with `AssetHelper::asset()`, which appends a version to the URL based on the
+installed versions of `studio-42/elfinder` and this package, so browsers pick up the new files after you re-publish
+the assets:
+
+```blade
+<script src="{{ \Barryvdh\Elfinder\AssetHelper::asset($dir, 'js/elfinder.min.js') }}"></script>
+```
+
+`$dir` is the publish directory, relative to the public path.
+
 ### Using Filesystem disks
 
 Laravel has the ability to use Flysystem adapters as local/cloud disks. You can add those disks to elFinder, using the `disks` config.

@@ -10,16 +10,16 @@
         <script src="//code.jquery.com/ui/1.14.2/jquery-ui.min.js" integrity="sha256-mblSWfbYzaq/f+4akyMhE6XELCou4jbkgPv+JQPER2M=" crossorigin="anonymous"></script>
 
         <!-- elFinder CSS (REQUIRED) -->
-        <link rel="stylesheet" type="text/css" href="<?= asset($dir . '/css/elfinder.min.css') ?>">
-        <link rel="stylesheet" type="text/css" href="<?= asset($dir . '/css/theme.css') ?>">
+        <link rel="stylesheet" type="text/css" href="<?= \Barryvdh\Elfinder\AssetHelper::asset($dir, 'css/elfinder.min.css') ?>">
+        <link rel="stylesheet" type="text/css" href="<?= \Barryvdh\Elfinder\AssetHelper::asset($dir, 'css/theme.css') ?>">
 
         <!-- elFinder JS (REQUIRED) -->
-        <script src="<?= asset($dir . '/js/elfinder.min.js') ?>"></script>
+        <script src="<?= \Barryvdh\Elfinder\AssetHelper::asset($dir, 'js/elfinder.min.js') ?>"></script>
 
         <?php if ($locale)
         { ?>
             <!-- elFinder translation (OPTIONAL) -->
-            <script src="<?= asset($dir . "/js/i18n/elfinder.$locale.js") ?>"></script>
+            <script src="<?= \Barryvdh\Elfinder\AssetHelper::asset($dir, "js/i18n/elfinder.$locale.js") ?>"></script>
         <?php } ?>
         <!-- Include jQuery, jQuery UI, elFinder (REQUIRED) -->
 
